@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import isDev from "electron-is-dev";
+import { createMenu } from "./menu";
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -8,9 +9,12 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload/index.js"),
     },
   });
+
+  createMenu(win);
 
   if (isDev) {
     win.loadURL("http://localhost:5173");

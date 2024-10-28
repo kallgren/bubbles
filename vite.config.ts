@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     electron({
-      entry: "src/main/main.ts",
+      entry: ["src/main/main.ts", "src/preload/index.ts"],
     }),
   ],
   css: {
