@@ -8,13 +8,29 @@ import {
 import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
-import { readdir } from "fs/promises";
+import { readdir, readFile, writeFile } from "fs/promises";
+
+async function getLastFolder(): Promise<string | undefined> {
+  const configPath = path.join(app.getPath("userData"), "config.json");
+  try {
+    const config = JSON.parse(await readFile(configPath, "utf-8"));
+    return config.lastFolder;
+  } catch {
+    return undefined;
+  }
+}
+
+async function saveLastFolder(folderPath: string) {
+  const configPath = path.join(app.getPath("userData"), "config.json");
+  await writeFile(configPath, JSON.stringify({ lastFolder: folderPath }));
+}
 
 async function handleFolderOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openDirectory"],
   });
   if (!canceled) {
+    await saveLastFolder(filePaths[0]);
     return filePaths[0];
   }
 }
@@ -33,7 +49,9 @@ async function handleListTextFiles(
 }
 
 async function createWindow() {
-  const folderPath = await handleFolderOpen();
+  const lastFolder = await getLastFolder();
+
+  const folderPath = lastFolder || (await handleFolderOpen());
 
   if (!folderPath) {
     app.quit();
