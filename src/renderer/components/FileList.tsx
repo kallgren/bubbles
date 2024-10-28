@@ -11,7 +11,7 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
       <ul className="space-y-1">
         {files.map((file, index) => (
           <li key={index} className="text-sm text-gray-700 hover:text-gray-900">
-            {file}
+            {file.replace(".txt", "")}
           </li>
         ))}
       </ul>
