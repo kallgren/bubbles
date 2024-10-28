@@ -11,6 +11,7 @@ declare global {
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(256); // 256px = 16rem (w-64)
 
   useEffect(() => {
     const cleanup = window.electronAPI.onToggleSidebar(() => {
@@ -22,8 +23,9 @@ function App() {
 
   return (
     <div className="flex h-screen">
-      {showSidebar && <Sidebar />}
-      {/* Main content */}
+      {showSidebar && (
+        <Sidebar width={sidebarWidth} setWidth={setSidebarWidth} />
+      )}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-800">
           Welcome to Bubbles!
