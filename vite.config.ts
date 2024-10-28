@@ -9,4 +9,7 @@ export default defineConfig({
       entry: "src/main/main.ts",
     }),
   ],
+  css: {
+    postcss: "./postcss.config.js",
+  },
 });
