@@ -32,10 +32,18 @@ async function handleListTextFiles(
   }
 }
 
-function createWindow() {
+async function createWindow() {
+  const folderPath = await handleFolderOpen();
+
+  if (!folderPath) {
+    app.quit();
+    return;
+  }
+
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
@@ -49,11 +57,17 @@ function createWindow() {
   createMenu(win);
 
   if (isDev) {
-    win.loadURL("http://localhost:5173");
+    await win.loadURL(
+      `http://localhost:5173?folder=${encodeURIComponent(folderPath)}`
+    );
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, "../renderer/index.html"));
+    await win.loadFile(path.join(__dirname, "../renderer/index.html"), {
+      query: { folder: folderPath },
+    });
   }
+
+  win.show();
 }
 
 app.whenReady().then(createWindow);

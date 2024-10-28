@@ -15,7 +15,10 @@ declare global {
 function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(256); // 256px = 16rem (w-64)
-  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
+  const [currentFolder, setCurrentFolder] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("folder");
+  });
 
   useEffect(() => {
     const cleanupSidebar = window.electronAPI.onToggleSidebar(() => {
