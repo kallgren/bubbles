@@ -10,4 +10,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.removeListener("toggle-sidebar", callback);
     };
   },
+  onMenuOpenFolder: (callback: () => void) => {
+    ipcRenderer.on("menu-open-folder", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-open-folder", callback);
+    };
+  },
+  openFolder: () => ipcRenderer.invoke("dialog:openFolder"),
 });

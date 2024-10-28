@@ -5,6 +5,8 @@ declare global {
   interface Window {
     electronAPI: {
       onToggleSidebar: (callback: () => void) => () => void;
+      onMenuOpenFolder: (callback: () => void) => () => void;
+      openFolder: () => Promise<string | undefined>;
     };
   }
 }
@@ -14,11 +16,22 @@ function App() {
   const [sidebarWidth, setSidebarWidth] = useState(256); // 256px = 16rem (w-64)
 
   useEffect(() => {
-    const cleanup = window.electronAPI.onToggleSidebar(() => {
+    const cleanupSidebar = window.electronAPI.onToggleSidebar(() => {
       setShowSidebar((prev) => !prev);
     });
 
-    return cleanup;
+    const cleanupOpenFolder = window.electronAPI.onMenuOpenFolder(async () => {
+      const path = await window.electronAPI.openFolder();
+      if (path) {
+        // Handle the selected folder path
+        console.log("Selected folder:", path);
+      }
+    });
+
+    return () => {
+      cleanupSidebar();
+      cleanupOpenFolder();
+    };
   }, []);
 
   return (

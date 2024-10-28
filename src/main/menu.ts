@@ -24,7 +24,17 @@ export function createMenu(mainWindow: BrowserWindow) {
       : []),
     {
       label: "File",
-      submenu: [isMac ? { role: "close" as const } : { role: "quit" as const }],
+      submenu: [
+        {
+          label: "Open Folder",
+          accelerator: isMac ? "Cmd+O" : "Ctrl+O",
+          click: () => {
+            mainWindow.webContents.send("menu-open-folder");
+          },
+        },
+        { type: "separator" as const },
+        isMac ? { role: "close" as const } : { role: "quit" as const },
+      ],
     },
     {
       label: "Edit",

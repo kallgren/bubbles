@@ -1,7 +1,16 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
+
+async function handleFolderOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+  });
+  if (!canceled) {
+    return filePaths[0];
+  }
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -13,6 +22,8 @@ function createWindow() {
       preload: path.join(__dirname, "preload/index.js"),
     },
   });
+
+  ipcMain.handle("dialog:openFolder", handleFolderOpen);
 
   createMenu(win);
 
