@@ -1,7 +1,14 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  IpcMainInvokeEvent,
+} from "electron";
 import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
+import { readdir } from "fs/promises";
 
 async function handleFolderOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -9,6 +16,19 @@ async function handleFolderOpen() {
   });
   if (!canceled) {
     return filePaths[0];
+  }
+}
+
+async function handleListTextFiles(
+  event: IpcMainInvokeEvent,
+  folderPath: string
+) {
+  try {
+    const files = await readdir(folderPath);
+    return files.filter((file) => file.endsWith(".txt"));
+  } catch (error) {
+    console.error("Failed to read directory:", error);
+    return [];
   }
 }
 
@@ -24,6 +44,7 @@ function createWindow() {
   });
 
   ipcMain.handle("dialog:openFolder", handleFolderOpen);
+  ipcMain.handle("folder:listTextFiles", handleListTextFiles);
 
   createMenu(win);
 

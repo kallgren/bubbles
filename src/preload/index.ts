@@ -17,4 +17,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     };
   },
   openFolder: () => ipcRenderer.invoke("dialog:openFolder"),
+  listTextFiles: (folderPath: string) =>
+    ipcRenderer.invoke("folder:listTextFiles", folderPath),
 });

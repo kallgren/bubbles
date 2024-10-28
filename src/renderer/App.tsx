@@ -7,6 +7,7 @@ declare global {
       onToggleSidebar: (callback: () => void) => () => void;
       onMenuOpenFolder: (callback: () => void) => () => void;
       openFolder: () => Promise<string | undefined>;
+      listTextFiles: (folderPath: string) => Promise<string[]>;
     };
   }
 }
@@ -14,6 +15,7 @@ declare global {
 function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(256); // 256px = 16rem (w-64)
+  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const cleanupSidebar = window.electronAPI.onToggleSidebar(() => {
@@ -23,8 +25,7 @@ function App() {
     const cleanupOpenFolder = window.electronAPI.onMenuOpenFolder(async () => {
       const path = await window.electronAPI.openFolder();
       if (path) {
-        // Handle the selected folder path
-        console.log("Selected folder:", path);
+        setCurrentFolder(path);
       }
     });
 
@@ -37,7 +38,11 @@ function App() {
   return (
     <div className="flex h-screen">
       {showSidebar && (
-        <Sidebar width={sidebarWidth} setWidth={setSidebarWidth} />
+        <Sidebar
+          width={sidebarWidth}
+          setWidth={setSidebarWidth}
+          currentFolder={currentFolder}
+        />
       )}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-800">
