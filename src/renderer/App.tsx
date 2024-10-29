@@ -1,13 +1,13 @@
 import React from "react";
 import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
-import { useFileSystem } from "./hooks/useFileSystem";
+import { useFiles } from "./hooks/useFiles";
 import { useSidebar } from "./hooks/useSidebar";
-import { useCurrentFile } from "./hooks/useCurrentFile";
 
 function App() {
-  const { currentFolder, textFiles } = useFileSystem();
-  const { currentFile, fileContent, openFile } = useCurrentFile();
+  const { currentFolder, textFiles, currentFile, fileContent, openFile } =
+    useFiles();
+
   const { showSidebar, sidebarWidth, setSidebarWidth } = useSidebar();
 
   return (

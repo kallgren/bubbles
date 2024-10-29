@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 
-export function useFileSystem() {
+export function useFiles() {
+  // File system state
   const [currentFolder, setCurrentFolder] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("folder");
   });
   const [textFiles, setTextFiles] = useState<string[]>([]);
+
+  // Current file state
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState<string | null>(null);
 
   // Load files when folder changes
   useEffect(() => {
@@ -35,11 +40,33 @@ export function useFileSystem() {
       const path = await window.electronAPI.openFolder();
       if (path) {
         setCurrentFolder(path);
+        closeFile();
       }
     });
 
     return cleanup;
   }, []);
 
-  return { currentFolder, textFiles };
+  const openFile = async (folderPath: string, filename: string) => {
+    const content = await window.electronAPI.readFile(folderPath, filename);
+    setCurrentFile(filename);
+    setFileContent(content);
+  };
+
+  const closeFile = () => {
+    setCurrentFile(null);
+    setFileContent(null);
+  };
+
+  return {
+    // File system
+    currentFolder,
+    textFiles,
+    // Current file
+    currentFile,
+    fileContent,
+    // Actions
+    openFile,
+    closeFile,
+  };
 }
