@@ -1,37 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "media",
   theme: {
     extend: {
       colors: {
         // Light theme colors
         primary: {
           DEFAULT: "#ffffff",
-          hover: "#f3f4f6",
+          hover: "#f5f5f5",
         },
         secondary: {
-          DEFAULT: "#f3f4f6",
-          hover: "#e5e7eb",
+          DEFAULT: "#f5f5f5",
+          hover: "#e5e5e5",
         },
         text: {
-          DEFAULT: "#1f2937",
-          secondary: "#4b5563",
+          DEFAULT: "#000000",
+          secondary: "#666666",
         },
         border: "rgba(0, 0, 0, 0.1)",
 
         // Dark theme colors
         dark: {
           primary: {
-            DEFAULT: "#1f2937",
-            hover: "#374151",
+            DEFAULT: "#1e1e1e",
+            hover: "#2a2a2a",
           },
           secondary: {
-            DEFAULT: "#111827",
-            hover: "#1f2937",
+            DEFAULT: "#2a2a2a",
+            hover: "#323232",
           },
           text: {
-            DEFAULT: "#f3f4f6",
-            secondary: "#9ca3af",
+            DEFAULT: "#ffffff",
+            secondary: "#999999",
           },
           border: "rgba(255, 255, 255, 0.1)",
         },
