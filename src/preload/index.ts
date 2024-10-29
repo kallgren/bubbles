@@ -1,7 +1,7 @@
-const { contextBridge, ipcRenderer } = require("electron");
-import { IpcRendererEvent } from "electron";
+import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
+import { ElectronAPI } from "../types/electron";
 
-contextBridge.exposeInMainWorld("electronAPI", {
+const api: ElectronAPI = {
   onToggleSidebar: (
     callback: (event: IpcRendererEvent, ...args: any[]) => void
   ) => {
@@ -35,4 +35,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.removeListener("menu-new-file", callback);
     };
   },
-});
+};
+
+contextBridge.exposeInMainWorld("electronAPI", api);
