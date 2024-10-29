@@ -10,7 +10,7 @@ import {
 import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
-import { readdir, readFile, writeFile, mkdir, rename } from "fs/promises";
+import { readdir, readFile, writeFile, mkdir, rename, stat } from "fs/promises";
 import { format } from "date-fns";
 
 // Define the NodeJS error type locally
@@ -45,23 +45,39 @@ async function handleFolderOpen() {
 
 async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
   try {
-    const files = await readdir(folderPath);
-    const activeFiles = files.filter((file) => file.endsWith(".txt"));
+    const mainFiles = await readdir(folderPath);
+    const archivePath = path.join(folderPath, "archive");
+    let archiveFiles: string[] = [];
 
-    // Get archived files if archive directory exists
-    let archivedFiles: string[] = [];
     try {
-      const archiveFiles = await readdir(path.join(folderPath, "archive"));
-      archivedFiles = archiveFiles
-        .filter((file) => file.endsWith(".txt"))
-        .map((file) => `archive/${file}`);
+      archiveFiles = (await readdir(archivePath))
+        .filter((f) => f.endsWith(".txt"))
+        .map((f) => `archive/${f}`);
     } catch (error) {
-      // Archive directory might not exist yet, that's ok
+      // Archive folder might not exist yet
     }
 
+    const allFiles = [
+      ...mainFiles.filter((f) => f.endsWith(".txt")),
+      ...archiveFiles,
+    ];
+
+    const fileStats = await Promise.all(
+      allFiles.map(async (file) => ({
+        name: file,
+        birthtime: (await stat(path.join(folderPath, file))).birthtime,
+      }))
+    );
+
     return {
-      activeFiles,
-      archivedFiles,
+      activeFiles: fileStats
+        .filter((f) => !f.name.startsWith("archive/"))
+        .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
+        .map((f) => f.name),
+      archivedFiles: fileStats
+        .filter((f) => f.name.startsWith("archive/"))
+        .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
+        .map((f) => f.name),
     };
   } catch (error) {
     console.error("Failed to read directory:", error);
