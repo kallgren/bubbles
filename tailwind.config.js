@@ -48,26 +48,32 @@ export default {
       keyframes: {
         "float-large": {
           "0%, 100%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) + 0px)) scale(1.01, 0.99)",
           },
           "50%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 10px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) - 10px)) scale(0.99, 1.01)",
           },
         },
         "float-medium": {
           "0%, 100%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) + 0px)) scale(1.007, 0.993)",
           },
           "50%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 6px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) - 6px)) scale(0.993, 1.007)",
           },
         },
         "float-small": {
           "0%, 100%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) + 0px)) scale(1.005, 0.995)",
           },
           "50%": {
-            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 4px))",
+            transform:
+              "translate(var(--mouse-x), calc(var(--mouse-y) - 4px)) scale(0.995, 1.005)",
           },
         },
       },
