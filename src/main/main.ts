@@ -5,12 +5,18 @@ import {
   ipcMain,
   IpcMainInvokeEvent,
   shell,
+  Menu,
 } from "electron";
 import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
-import { readdir, readFile, writeFile } from "fs/promises";
+import { readdir, readFile, writeFile, mkdir, rename } from "fs/promises";
 import { format } from "date-fns";
+
+// Define the NodeJS error type locally
+interface NodeJSError extends Error {
+  code?: string;
+}
 
 async function getLastFolder(): Promise<string | undefined> {
   const configPath = path.join(app.getPath("userData"), "config.json");
@@ -37,16 +43,29 @@ async function handleFolderOpen() {
   }
 }
 
-async function handleListTextFiles(
-  event: IpcMainInvokeEvent,
-  folderPath: string
-) {
+async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
   try {
     const files = await readdir(folderPath);
-    return files.filter((file) => file.endsWith(".txt"));
+    const activeFiles = files.filter((file) => file.endsWith(".txt"));
+
+    // Get archived files if archive directory exists
+    let archivedFiles: string[] = [];
+    try {
+      const archiveFiles = await readdir(path.join(folderPath, "archive"));
+      archivedFiles = archiveFiles
+        .filter((file) => file.endsWith(".txt"))
+        .map((file) => `archive/${file}`);
+    } catch (error) {
+      // Archive directory might not exist yet, that's ok
+    }
+
+    return {
+      activeFiles,
+      archivedFiles,
+    };
   } catch (error) {
     console.error("Failed to read directory:", error);
-    return [];
+    return { activeFiles: [], archivedFiles: [] };
   }
 }
 
@@ -109,6 +128,43 @@ async function handleDeleteFile(
   return false;
 }
 
+async function handleArchiveFile(
+  event: IpcMainInvokeEvent,
+  folderPath: string,
+  filename: string,
+  isRestore: boolean
+) {
+  try {
+    const archivePath = path.join(folderPath, "archive");
+
+    if (!isRestore) {
+      try {
+        await mkdir(archivePath, { recursive: true });
+      } catch (error) {
+        const nodeError = error as NodeJSError;
+        if (nodeError.code !== "EEXIST") throw error;
+      }
+    }
+
+    const sourcePath = path.join(
+      folderPath,
+      isRestore ? "archive" : "",
+      filename
+    );
+    const targetPath = path.join(
+      folderPath,
+      isRestore ? "" : "archive",
+      filename
+    );
+
+    await rename(sourcePath, targetPath);
+    return true;
+  } catch (error) {
+    console.error("Failed to archive/restore file:", error);
+    return false;
+  }
+}
+
 async function createWindow() {
   const lastFolder = await getLastFolder();
 
@@ -131,10 +187,25 @@ async function createWindow() {
   });
 
   ipcMain.handle("dialog:openFolder", handleFolderOpen);
-  ipcMain.handle("folder:listTextFiles", handleListTextFiles);
+  ipcMain.handle("folder:getFiles", handleGetFiles);
   ipcMain.handle("file:create", handleCreateNewFile);
   ipcMain.handle("file:read", handleReadFile);
   ipcMain.handle("file:delete", handleDeleteFile);
+  ipcMain.handle("file:archive", handleArchiveFile);
+
+  ipcMain.handle(
+    "menu:updateEnabled",
+    (event, menuId: string, enabled: boolean) => {
+      const menu = Menu.getApplicationMenu();
+      const fileMenu = menu?.items.find((item) => item.label === "File");
+      const menuItem = fileMenu?.submenu?.items.find(
+        (item) => item.label === menuId
+      );
+      if (menuItem) {
+        menuItem.enabled = enabled;
+      }
+    }
+  );
 
   createMenu(win);
 

@@ -25,8 +25,8 @@ const api: ElectronAPI = {
     };
   },
   openFolder: () => ipcRenderer.invoke("dialog:openFolder"),
-  listTextFiles: (folderPath: string) =>
-    ipcRenderer.invoke("folder:listTextFiles", folderPath),
+  getFiles: (folderPath: string) =>
+    ipcRenderer.invoke("folder:getFiles", folderPath),
   createNewFile: (folderPath: string) =>
     ipcRenderer.invoke("file:create", folderPath),
   onMenuNewFile: (callback: () => void) => {
@@ -45,6 +45,22 @@ const api: ElectronAPI = {
       ipcRenderer.removeListener("menu-delete-file", callback);
     };
   },
+  archiveFile: (folderPath: string, filename: string, isRestore: boolean) =>
+    ipcRenderer.invoke("file:archive", folderPath, filename, isRestore),
+  onMenuArchiveFile: (callback: () => void) => {
+    ipcRenderer.on("menu-archive-file", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-archive-file", callback);
+    };
+  },
+  onMenuRestoreFile: (callback: () => void) => {
+    ipcRenderer.on("menu-restore-file", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-restore-file", callback);
+    };
+  },
+  updateMenuEnabled: (menuId: string, enabled: boolean) =>
+    ipcRenderer.invoke("menu:updateEnabled", menuId, enabled),
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);

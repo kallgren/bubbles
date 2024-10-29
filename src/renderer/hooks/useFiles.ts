@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 
 export function useFiles() {
+  // Get initial folder from URL
+  const params = new URLSearchParams(window.location.search);
+  const initialFolder = params.get("folder");
+  const decodedFolder = initialFolder
+    ? decodeURIComponent(initialFolder)
+    : null;
+
   // File system state
-  const [currentFolder, setCurrentFolder] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("folder");
-  });
-  const [textFiles, setTextFiles] = useState<string[]>([]);
+  const [currentFolder, setCurrentFolder] = useState<string | null>(
+    decodedFolder
+  );
+  const [activeFiles, setActiveFiles] = useState<string[]>([]);
+  const [archivedFiles, setArchivedFiles] = useState<string[]>([]);
 
   // Current file state
   const [currentFile, setCurrentFile] = useState<string | null>(null);
@@ -15,22 +22,22 @@ export function useFiles() {
   // Load files when folder changes
   useEffect(() => {
     if (currentFolder) {
-      window.electronAPI.listTextFiles(currentFolder).then(setTextFiles);
+      window.electronAPI
+        .getFiles(currentFolder)
+        .then(({ activeFiles, archivedFiles }) => {
+          setActiveFiles(activeFiles);
+          setArchivedFiles(archivedFiles);
+        });
     }
   }, [currentFolder]);
 
   // Handle new file creation
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuNewFile(async () => {
-      if (currentFolder) {
-        const newFile = await window.electronAPI.createNewFile(currentFolder);
-        if (newFile) {
-          const files = await window.electronAPI.listTextFiles(currentFolder);
-          setTextFiles(files);
-        }
-      }
+    const cleanup = window.electronAPI.onMenuNewFile(() => {
+      handleFileOperation(
+        async () => !!(await window.electronAPI.createNewFile(currentFolder!))
+      );
     });
-
     return cleanup;
   }, [currentFolder]);
 
@@ -60,26 +67,78 @@ export function useFiles() {
 
   // Handle file deletion
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuDeleteFile(async () => {
-      if (currentFolder && currentFile) {
-        const success = await window.electronAPI.deleteFile(
-          currentFolder,
-          currentFile
+    const cleanup = window.electronAPI.onMenuDeleteFile(() => {
+      if (currentFile) {
+        handleFileOperation(
+          () => window.electronAPI.deleteFile(currentFolder!, currentFile),
+          closeFile
         );
-        if (success) {
-          closeFile();
-          const files = await window.electronAPI.listTextFiles(currentFolder);
-          setTextFiles(files);
-        }
       }
     });
     return cleanup;
   }, [currentFolder, currentFile]);
 
+  // Handle file archiving
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuArchiveFile(() => {
+      if (currentFile) {
+        handleFileOperation(
+          () =>
+            window.electronAPI.archiveFile(currentFolder!, currentFile, false),
+          closeFile
+        );
+      }
+    });
+    return cleanup;
+  }, [currentFolder, currentFile]);
+
+  // Handle file restoration
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuRestoreFile(() => {
+      if (currentFile) {
+        const filename = currentFile.replace(/^archive\//, "");
+        handleFileOperation(() =>
+          window.electronAPI.archiveFile(currentFolder!, filename, true)
+        );
+      }
+    });
+    return cleanup;
+  }, [currentFolder, currentFile]);
+
+  // Handle archive/restore menu updates
+  useEffect(() => {
+    if (currentFile) {
+      const isArchived = currentFile.startsWith("archive/");
+      window.electronAPI.updateMenuEnabled("Archive File", !isArchived);
+      window.electronAPI.updateMenuEnabled("Restore File", isArchived);
+    } else {
+      window.electronAPI.updateMenuEnabled("Archive File", false);
+      window.electronAPI.updateMenuEnabled("Restore File", false);
+    }
+  }, [currentFile]);
+
+  const handleFileOperation = async (
+    operation: () => Promise<boolean>,
+    onSuccess?: () => void
+  ) => {
+    if (!currentFolder) return;
+
+    const success = await operation();
+    if (success) {
+      if (onSuccess) onSuccess();
+      const { activeFiles, archivedFiles } = await window.electronAPI.getFiles(
+        currentFolder
+      );
+      setActiveFiles(activeFiles);
+      setArchivedFiles(archivedFiles);
+    }
+  };
+
   return {
     // File system
     currentFolder,
-    textFiles,
+    activeFiles,
+    archivedFiles,
     // Current file
     currentFile,
     fileContent,

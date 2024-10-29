@@ -5,8 +5,14 @@ import { useFiles } from "./hooks/useFiles";
 import { useSidebar } from "./hooks/useSidebar";
 
 function App() {
-  const { currentFolder, textFiles, currentFile, fileContent, openFile } =
-    useFiles();
+  const {
+    currentFolder,
+    activeFiles,
+    archivedFiles,
+    currentFile,
+    fileContent,
+    openFile,
+  } = useFiles();
 
   const { showSidebar, sidebarWidth, setSidebarWidth } = useSidebar();
 
@@ -17,7 +23,8 @@ function App() {
           width={sidebarWidth}
           setWidth={setSidebarWidth}
           currentFolder={currentFolder}
-          files={textFiles}
+          activeFiles={activeFiles}
+          archivedFiles={archivedFiles}
           onFileSelect={(filename) =>
             currentFolder && filename && openFile(currentFolder, filename)
           }

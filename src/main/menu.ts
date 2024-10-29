@@ -27,7 +27,7 @@ export function createMenu(mainWindow: BrowserWindow) {
       submenu: [
         {
           label: "New File",
-          accelerator: isMac ? "Cmd+N" : "Ctrl+N",
+          accelerator: "CmdOrCtrl+N",
           click: () => {
             mainWindow.webContents.send("menu-new-file");
           },
@@ -35,15 +35,31 @@ export function createMenu(mainWindow: BrowserWindow) {
         { type: "separator" as const },
         {
           label: "Open Folder...",
-          accelerator: isMac ? "Cmd+O" : "Ctrl+O",
+          accelerator: "CmdOrCtrl+O",
           click: () => {
             mainWindow.webContents.send("menu-open-folder");
           },
         },
         { type: "separator" as const },
         {
+          label: "Archive File",
+          accelerator: "CmdOrCtrl+E",
+          click: () => {
+            mainWindow.webContents.send("menu-archive-file");
+          },
+          enabled: false,
+        },
+        {
+          label: "Restore File",
+          accelerator: "CmdOrCtrl+Shift+E",
+          click: () => {
+            mainWindow.webContents.send("menu-restore-file");
+          },
+          enabled: false,
+        },
+        {
           label: "Delete File",
-          accelerator: isMac ? "Cmd+Backspace" : "Delete",
+          accelerator: "CmdOrCtrl+Backspace",
           click: () => {
             mainWindow.webContents.send("menu-delete-file");
           },
