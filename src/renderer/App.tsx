@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
 import { useFiles } from "./hooks/useFiles";
 import { useSidebar } from "./hooks/useSidebar";
+import TitleBar from "./components/TitleBar";
 
 function App() {
   const {
@@ -30,16 +31,19 @@ function App() {
           }
         />
       )}
-      <div className="flex-1 bg-gray-50">
-        {currentFile ? (
-          <Editor filename={currentFile} content={fileContent} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <h1 className="text-4xl font-bold text-gray-800">
-              Welcome to Bubbles!
-            </h1>
-          </div>
-        )}
+      <div className="flex flex-col flex-1">
+        <TitleBar title="Bubbles" />
+        <div className="flex-1">
+          {currentFile ? (
+            <Editor filename={currentFile} content={fileContent} />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-50">
+              <h1 className="text-4xl font-bold text-gray-80">
+                Welcome to Bubbles!
+              </h1>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

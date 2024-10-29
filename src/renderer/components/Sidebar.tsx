@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import FileList from "./FileList";
+import TitleBar from "./TitleBar";
 
 interface SidebarProps {
   width: number;
@@ -53,22 +54,24 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [setWidth]);
 
   return (
-    <div
-      ref={sidebarRef}
-      className="relative bg-gray-100 border-r border-gray-200 h-full overflow-y-auto"
-      style={{ width: `${width}px` }}
-    >
+    <div className="flex flex-col" style={{ width: `${width}px` }}>
       <div
-        ref={resizerRef}
-        className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-gray-300 active:bg-gray-400"
-      />
-      {currentFolder && (
-        <FileList
-          activeFiles={activeFiles}
-          archivedFiles={archivedFiles}
-          onFileSelect={onFileSelect}
+        ref={sidebarRef}
+        className="relative bg-gray-100 border-r border-gray-200 overflow-y-auto flex-1"
+      >
+        <div
+          ref={resizerRef}
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-gray-300 active:bg-gray-400"
         />
-      )}
+        <TitleBar />
+        {currentFolder && (
+          <FileList
+            activeFiles={activeFiles}
+            archivedFiles={archivedFiles}
+            onFileSelect={onFileSelect}
+          />
+        )}
+      </div>
     </div>
   );
 };
