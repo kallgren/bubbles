@@ -60,8 +60,10 @@ const FileList: React.FC<FileListProps> = ({
               key={file}
               tabIndex={0}
               onClick={(event) => handleItemClick(index, event)}
-              className={`text-sm text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                selectedFiles.has(index) ? "bg-blue-100" : ""
+              className={`text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text dark:hover:text-dark-text hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                selectedFiles.has(index)
+                  ? "bg-secondary-hover dark:bg-dark-secondary-hover"
+                  : ""
               }`}
               style={{ userSelect: "none" }}
             >

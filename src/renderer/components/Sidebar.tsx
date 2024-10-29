@@ -57,11 +57,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div className="flex flex-col" style={{ width: `${width}px` }}>
       <div
         ref={sidebarRef}
-        className="relative bg-gray-100 border-r border-gray-200 overflow-y-auto flex-1"
+        className="relative border-r border-border dark:border-dark-border overflow-y-auto flex-1"
       >
         <div
           ref={resizerRef}
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-gray-300 active:bg-gray-400"
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary-hover dark:hover:bg-dark-primary-hover active:bg-secondary-hover dark:active:bg-dark-secondary-hover"
         />
         <TitleBar />
         {currentFolder && (

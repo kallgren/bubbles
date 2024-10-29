@@ -18,7 +18,7 @@ function App() {
   const { showSidebar, sidebarWidth, setSidebarWidth } = useSidebar();
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen text-text dark:text-dark-text">
       {showSidebar && (
         <Sidebar
           width={sidebarWidth}
@@ -37,8 +37,8 @@ function App() {
           {currentFile ? (
             <Editor filename={currentFile} content={fileContent} />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gray-50">
-              <h1 className="text-4xl font-bold text-gray-80">
+            <div className="flex items-center justify-center h-full bg-secondary dark:bg-dark-secondary">
+              <h1 className="text-4xl font-bold text-text dark:text-dark-text">
                 Welcome to Bubbles!
               </h1>
             </div>
