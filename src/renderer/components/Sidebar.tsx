@@ -51,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div
       ref={sidebarRef}
-      className="relative bg-gray-100 border-r border-gray-200"
+      className="relative bg-gray-100 border-r border-gray-200 h-full overflow-y-auto"
       style={{ width: `${width}px` }}
     >
       <div
