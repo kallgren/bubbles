@@ -13,6 +13,7 @@ const FileList: React.FC<FileListProps> = ({
   onFileSelect,
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const lastSelectedIndex = useRef<number | null>(null);
 
   const handleItemClick = (index: number, event: React.MouseEvent) => {
@@ -48,40 +49,52 @@ const FileList: React.FC<FileListProps> = ({
   const renderFileSection = (
     files: string[],
     title: string,
-    startIndex: number
+    startIndex: number,
+    isArchive = false
   ) => (
     <div className="mb-6">
-      <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      <ul className="space-y-1">
-        {files.map((file, idx) => {
-          const index = startIndex + idx;
-          return (
-            <li
-              key={file}
-              tabIndex={0}
-              onClick={(event) => handleItemClick(index, event)}
-              className={`text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text dark:hover:text-dark-text hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                selectedFiles.has(index)
-                  ? "bg-secondary-hover dark:bg-dark-secondary-hover"
-                  : ""
-              }`}
-              style={{ userSelect: "none" }}
-            >
-              {file
-                .replace(new RegExp(`^${ARCHIVE_FOLDER}/`), "")
-                .replace(".txt", "")}
-            </li>
-          );
-        })}
-      </ul>
+      <button
+        onClick={() => isArchive && setIsArchiveOpen(!isArchiveOpen)}
+        className="flex items-center w-full text-lg font-semibold mb-2 cursor-default"
+        disabled={!isArchive}
+      >
+        {isArchive && (
+          <span className="mr-1 text-sm">{isArchiveOpen ? "▼" : "▶"}</span>
+        )}
+        {title}
+      </button>
+      {(!isArchive || isArchiveOpen) && (
+        <ul className="space-y-1">
+          {files.map((file, idx) => {
+            const index = startIndex + idx;
+            return (
+              <li
+                key={file}
+                tabIndex={0}
+                onClick={(event) => handleItemClick(index, event)}
+                className={`text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text dark:hover:text-dark-text hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  selectedFiles.has(index)
+                    ? "bg-secondary-hover dark:bg-dark-secondary-hover"
+                    : ""
+                }`}
+                style={{ userSelect: "none" }}
+              >
+                {file
+                  .replace(new RegExp(`^${ARCHIVE_FOLDER}/`), "")
+                  .replace(".txt", "")}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 
   return (
     <div className="p-4">
-      {renderFileSection(activeFiles, "Text Files", 0)}
+      {renderFileSection(activeFiles, "Bubbles", 0)}
       {archivedFiles.length > 0 &&
-        renderFileSection(archivedFiles, "Archive", activeFiles.length)}
+        renderFileSection(archivedFiles, "Archive", activeFiles.length, true)}
     </div>
   );
 };
