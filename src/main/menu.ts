@@ -26,7 +26,15 @@ export function createMenu(mainWindow: BrowserWindow) {
       label: "File",
       submenu: [
         {
-          label: "Open Folder",
+          label: "New File",
+          accelerator: isMac ? "Cmd+N" : "Ctrl+N",
+          click: () => {
+            mainWindow.webContents.send("menu-new-file");
+          },
+        },
+        { type: "separator" as const },
+        {
+          label: "Open Folder...",
           accelerator: isMac ? "Cmd+O" : "Ctrl+O",
           click: () => {
             mainWindow.webContents.send("menu-open-folder");

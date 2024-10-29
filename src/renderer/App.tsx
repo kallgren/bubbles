@@ -8,18 +8,29 @@ declare global {
       onMenuOpenFolder: (callback: () => void) => () => void;
       openFolder: () => Promise<string | undefined>;
       listTextFiles: (folderPath: string) => Promise<string[]>;
+      onMenuNewFile: (callback: () => void) => () => void;
+      createNewFile: (folderPath: string) => Promise<string | null>;
     };
   }
 }
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(true);
-  const [sidebarWidth, setSidebarWidth] = useState(256); // 256px = 16rem (w-64)
+  const [sidebarWidth, setSidebarWidth] = useState(256);
   const [currentFolder, setCurrentFolder] = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("folder");
   });
+  const [textFiles, setTextFiles] = useState<string[]>([]);
 
+  // Effect to load files when folder changes
+  useEffect(() => {
+    if (currentFolder) {
+      window.electronAPI.listTextFiles(currentFolder).then(setTextFiles);
+    }
+  }, [currentFolder]);
+
+  // Handlers that don't depend on any state
   useEffect(() => {
     const cleanupSidebar = window.electronAPI.onToggleSidebar(() => {
       setShowSidebar((prev) => !prev);
@@ -38,6 +49,23 @@ function App() {
     };
   }, []);
 
+  // Handler that needs currentFolder
+  useEffect(() => {
+    const cleanupNewFile = window.electronAPI.onMenuNewFile(async () => {
+      if (currentFolder) {
+        const newFile = await window.electronAPI.createNewFile(currentFolder);
+        if (newFile) {
+          const files = await window.electronAPI.listTextFiles(currentFolder);
+          setTextFiles(files);
+        }
+      }
+    });
+
+    return () => {
+      cleanupNewFile();
+    };
+  }, [currentFolder]);
+
   return (
     <div className="flex h-screen">
       {showSidebar && (
@@ -45,6 +73,7 @@ function App() {
           width={sidebarWidth}
           setWidth={setSidebarWidth}
           currentFolder={currentFolder}
+          files={textFiles}
         />
       )}
       <div className="flex-1 flex items-center justify-center bg-gray-50">

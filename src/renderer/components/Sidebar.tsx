@@ -1,26 +1,21 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import FileList from "./FileList";
 
 interface SidebarProps {
   width: number;
   setWidth: (width: number) => void;
   currentFolder: string | null;
+  files: string[];
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   width,
   setWidth,
   currentFolder,
+  files,
 }) => {
-  const [textFiles, setTextFiles] = useState<string[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const resizerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (currentFolder) {
-      window.electronAPI.listTextFiles(currentFolder).then(setTextFiles);
-    }
-  }, [currentFolder]);
 
   useEffect(() => {
     const resizer = resizerRef.current;
@@ -63,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ref={resizerRef}
         className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-gray-300 active:bg-gray-400"
       />
-      {currentFolder && <FileList files={textFiles} />}
+      {currentFolder && <FileList files={files} />}
     </div>
   );
 };

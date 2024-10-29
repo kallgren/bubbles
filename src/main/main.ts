@@ -9,6 +9,7 @@ import path from "path";
 import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
 import { readdir, readFile, writeFile } from "fs/promises";
+import { format } from "date-fns";
 
 async function getLastFolder(): Promise<string | undefined> {
   const configPath = path.join(app.getPath("userData"), "config.json");
@@ -48,6 +49,23 @@ async function handleListTextFiles(
   }
 }
 
+async function handleCreateNewFile(
+  event: IpcMainInvokeEvent,
+  folderPath: string
+) {
+  const timestamp = format(new Date(), "yyyy-MM-dd (HHmmss)");
+  const filename = `${timestamp}.txt`;
+  const filePath = path.join(folderPath, filename);
+
+  try {
+    await writeFile(filePath, "");
+    return filename;
+  } catch (error) {
+    console.error("Failed to create file:", error);
+    return null;
+  }
+}
+
 async function createWindow() {
   const lastFolder = await getLastFolder();
 
@@ -71,6 +89,7 @@ async function createWindow() {
 
   ipcMain.handle("dialog:openFolder", handleFolderOpen);
   ipcMain.handle("folder:listTextFiles", handleListTextFiles);
+  ipcMain.handle("file:create", handleCreateNewFile);
 
   createMenu(win);
 
@@ -78,7 +97,7 @@ async function createWindow() {
     await win.loadURL(
       `http://localhost:5173?folder=${encodeURIComponent(folderPath)}`
     );
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
   } else {
     await win.loadFile(path.join(__dirname, "../renderer/index.html"), {
       query: { folder: folderPath },

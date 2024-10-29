@@ -27,4 +27,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   openFolder: () => ipcRenderer.invoke("dialog:openFolder"),
   listTextFiles: (folderPath: string) =>
     ipcRenderer.invoke("folder:listTextFiles", folderPath),
+  createNewFile: (folderPath: string) =>
+    ipcRenderer.invoke("file:create", folderPath),
+  onMenuNewFile: (callback: () => void) => {
+    ipcRenderer.on("menu-new-file", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-new-file", callback);
+    };
+  },
 });
