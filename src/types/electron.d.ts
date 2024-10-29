@@ -20,6 +20,7 @@ export interface ElectronAPI {
   onMenuArchiveFile: (callback: () => void) => () => void;
   onMenuRestoreFile: (callback: () => void) => () => void;
   updateMenuEnabled: (menuId: string, enabled: boolean) => Promise<void>;
+  onMenuCloseFile: (callback: () => void) => () => void;
 }
 
 declare global {

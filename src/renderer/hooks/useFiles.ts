@@ -121,6 +121,14 @@ export function useFiles() {
     }
   }, [currentFile]);
 
+  // Handle file closing
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuCloseFile(() => {
+      closeFile();
+    });
+    return cleanup;
+  }, []);
+
   const handleFileOperation = async (
     operation: () => Promise<boolean>,
     onSuccess?: () => void

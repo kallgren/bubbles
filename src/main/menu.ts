@@ -64,6 +64,13 @@ export function createMenu(mainWindow: BrowserWindow) {
             mainWindow.webContents.send("menu-delete-file");
           },
         },
+        {
+          label: "Close File",
+          accelerator: "CmdOrCtrl+W",
+          click: () => {
+            mainWindow.webContents.send("menu-close-file");
+          },
+        },
         isMac ? { role: "close" as const } : { role: "quit" as const },
       ],
     },

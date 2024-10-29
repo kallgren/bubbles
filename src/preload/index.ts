@@ -61,6 +61,12 @@ const api: ElectronAPI = {
   },
   updateMenuEnabled: (menuId: string, enabled: boolean) =>
     ipcRenderer.invoke("menu:updateEnabled", menuId, enabled),
+  onMenuCloseFile: (callback: () => void) => {
+    ipcRenderer.on("menu-close-file", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-close-file", callback);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);
