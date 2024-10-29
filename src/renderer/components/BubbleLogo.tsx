@@ -25,11 +25,15 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const getTransform = (zDistance: number) => {
+  const getStyle = (zDistance: number) => {
     const factor = 1 / (1 + zDistance * 0.5);
     const x = (mousePos.x * factor) / 20;
     const y = (mousePos.y * factor) / 20;
-    return `translate(${x}px, ${y}px)`;
+
+    return {
+      "--mouse-x": `${x}px`,
+      "--mouse-y": `${y}px`,
+    } as React.CSSProperties;
   };
 
   return (
@@ -38,11 +42,10 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
         width={size}
         height={size}
         viewBox="-10 -10 120 120"
-        className="transition-transform duration-200"
         style={{ overflow: "visible" }}
       >
-        {/* Main bubble - closest to viewer */}
-        <g style={{ transform: getTransform(0) }}>
+        {/* Main bubble - largest float */}
+        <g className="animate-float-large" style={getStyle(0)}>
           <circle
             cx="50"
             cy="50"
@@ -50,7 +53,6 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
             className="fill-text/5 dark:fill-dark-text/5 stroke-text/40 dark:stroke-dark-text/40"
             strokeWidth="2"
           />
-          {/* Large shine for main bubble - increased strokeWidth to 3 */}
           <path
             d="M 45 25 A 30 30 0 0 1 70 35"
             className="stroke-text/20 dark:stroke-dark-text/20"
@@ -59,8 +61,8 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
           />
         </g>
 
-        {/* Medium distance bubble */}
-        <g style={{ transform: getTransform(1) }}>
+        {/* Medium bubble - medium float */}
+        <g className="animate-float-medium" style={getStyle(1)}>
           <circle
             cx="75"
             cy="35"
@@ -70,8 +72,8 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
           />
         </g>
 
-        {/* Furthest bubble with its shine */}
-        <g style={{ transform: getTransform(2) }}>
+        {/* Small bubble - smallest float */}
+        <g className="animate-float-small" style={getStyle(2)}>
           <circle
             cx="30"
             cy="70"
@@ -79,7 +81,6 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
             className="fill-text/5 dark:fill-dark-text/5 stroke-text/40 dark:stroke-dark-text/40"
             strokeWidth="2"
           />
-          {/* Small shine */}
           <path
             d="M 25 65 A 8 8 0 0 1 35 68"
             className="stroke-text/20 dark:stroke-dark-text/20"

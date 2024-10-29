@@ -46,13 +46,35 @@ export default {
         },
       },
       keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+        "float-large": {
+          "0%, 100%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+          },
+          "50%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 10px))",
+          },
+        },
+        "float-medium": {
+          "0%, 100%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+          },
+          "50%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 6px))",
+          },
+        },
+        "float-small": {
+          "0%, 100%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) + 0px))",
+          },
+          "50%": {
+            transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 4px))",
+          },
         },
       },
       animation: {
-        float: "float 3s ease-in-out infinite",
+        "float-large": "float-large 3s ease-in-out infinite",
+        "float-medium": "float-medium 3s ease-in-out 0.5s infinite",
+        "float-small": "float-small 3s ease-in-out 1s infinite",
       },
     },
   },
