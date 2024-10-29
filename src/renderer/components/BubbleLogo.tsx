@@ -54,9 +54,9 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
             strokeWidth="2"
           />
           <path
-            d="M 45 25 A 30 30 0 0 1 70 35"
+            d="M 35 25 A 30 30 0 0 1 75 30"
             className="stroke-text/20 dark:stroke-dark-text/20"
-            strokeWidth="3"
+            strokeWidth="2"
             fill="none"
           />
         </g>
@@ -69,6 +69,12 @@ const BubbleLogo: React.FC<BubbleLogoProps> = ({
             r="15"
             className="fill-text/5 dark:fill-dark-text/5 stroke-text/40 dark:stroke-dark-text/40"
             strokeWidth="2"
+          />
+          <path
+            d="M 70 25 A 12 12 0 0 1 85 30"
+            className="stroke-text/20 dark:stroke-dark-text/20"
+            strokeWidth="2"
+            fill="none"
           />
         </g>
 
