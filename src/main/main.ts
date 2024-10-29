@@ -197,7 +197,7 @@ async function createWindow() {
     height: 600,
     show: false,
     titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 8, y: 8 },
+    trafficLightPosition: { x: 18, y: 18 },
     vibrancy: "sidebar",
     backgroundColor: "#00ffffff",
     webPreferences: {

@@ -31,13 +31,19 @@ function App() {
           }
         />
       )}
-      <div className="flex flex-col flex-1">
-        <TitleBar title="Bubbles" />
-        <div className="flex-1">
+      <div
+        className={`flex flex-col flex-1 ${
+          currentFile
+            ? "bg-primary dark:bg-dark-tertiary"
+            : "bg-secondary dark:bg-dark-secondary"
+        }`}
+      >
+        <TitleBar title={currentFile || ""} />
+        <div className="flex-1 ">
           {currentFile ? (
             <Editor filename={currentFile} content={fileContent} />
           ) : (
-            <div className="flex items-center justify-center h-full bg-secondary dark:bg-dark-secondary">
+            <div className="flex items-center justify-center h-full">
               <h1 className="text-4xl font-bold text-text dark:text-dark-text">
                 Welcome to Bubbles!
               </h1>

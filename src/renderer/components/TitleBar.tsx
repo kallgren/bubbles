@@ -7,9 +7,9 @@ interface TitleBarProps {
 
 const TitleBar: React.FC<TitleBarProps> = ({ className = "", title }) => {
   return (
-    <div className={`h-8 w-full flex items-center draggable ${className}`}>
+    <div className={`h-12 w-full flex items-center draggable ${className}`}>
       {title && (
-        <div className="flex-1 text-center text-sm font-medium text-gray-600">
+        <div className="flex-1 text-center text-sm font-medium text-text dark:text-dark-text">
           {title}
         </div>
       )}

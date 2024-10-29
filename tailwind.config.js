@@ -14,6 +14,10 @@ export default {
           DEFAULT: "#f5f5f5",
           hover: "#e5e5e5",
         },
+        tertiary: {
+          DEFAULT: "#fafafa",
+          hover: "#f0f0f0",
+        },
         text: {
           DEFAULT: "#000000",
           secondary: "#666666",
@@ -29,6 +33,10 @@ export default {
           secondary: {
             DEFAULT: "#2a2a2a",
             hover: "#323232",
+          },
+          tertiary: {
+            DEFAULT: "#232323",
+            hover: "#2f2f2f",
           },
           text: {
             DEFAULT: "#ffffff",
