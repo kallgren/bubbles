@@ -109,15 +109,19 @@ export function useFiles() {
     return cleanup;
   }, [currentFolder, currentFile]);
 
-  // Handle archive/restore menu updates
+  // Handle menu updates
   useEffect(() => {
     if (currentFile) {
       const isArchived = currentFile.startsWith(`${ARCHIVE_FOLDER}/`);
       window.electronAPI.updateMenuEnabled("Archive File", !isArchived);
       window.electronAPI.updateMenuEnabled("Restore File", isArchived);
+      window.electronAPI.updateMenuEnabled("Close File", true);
+      window.electronAPI.updateMenuEnabled("Delete File", true);
     } else {
       window.electronAPI.updateMenuEnabled("Archive File", false);
       window.electronAPI.updateMenuEnabled("Restore File", false);
+      window.electronAPI.updateMenuEnabled("Close File", false);
+      window.electronAPI.updateMenuEnabled("Delete File", false);
     }
   }, [currentFile]);
 

@@ -63,6 +63,7 @@ export function createMenu(mainWindow: BrowserWindow) {
           click: () => {
             mainWindow.webContents.send("menu-delete-file");
           },
+          enabled: false,
         },
         {
           label: "Close File",
@@ -70,6 +71,7 @@ export function createMenu(mainWindow: BrowserWindow) {
           click: () => {
             mainWindow.webContents.send("menu-close-file");
           },
+          enabled: false,
         },
         isMac ? { role: "close" as const } : { role: "quit" as const },
       ],
