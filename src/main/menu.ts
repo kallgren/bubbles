@@ -41,6 +41,13 @@ export function createMenu(mainWindow: BrowserWindow) {
           },
         },
         { type: "separator" as const },
+        {
+          label: "Delete File",
+          accelerator: isMac ? "Cmd+Backspace" : "Delete",
+          click: () => {
+            mainWindow.webContents.send("menu-delete-file");
+          },
+        },
         isMac ? { role: "close" as const } : { role: "quit" as const },
       ],
     },

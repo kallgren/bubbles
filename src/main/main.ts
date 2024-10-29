@@ -4,6 +4,7 @@ import {
   dialog,
   ipcMain,
   IpcMainInvokeEvent,
+  shell,
 } from "electron";
 import path from "path";
 import isDev from "electron-is-dev";
@@ -81,6 +82,33 @@ async function handleReadFile(
   }
 }
 
+async function handleDeleteFile(
+  event: IpcMainInvokeEvent,
+  folderPath: string,
+  filename: string
+) {
+  const { response } = await dialog.showMessageBox({
+    type: "warning",
+    message: "Move to trash?",
+    detail: `Are you sure you want to move "${filename}" to trash?`,
+    buttons: ["Cancel", "Move to Trash"],
+    defaultId: 0,
+    cancelId: 0,
+  });
+
+  if (response === 1) {
+    const fullPath = path.join(folderPath, filename);
+    try {
+      await shell.trashItem(fullPath);
+      return true;
+    } catch (error) {
+      console.error("Failed to move file to trash:", error);
+      return false;
+    }
+  }
+  return false;
+}
+
 async function createWindow() {
   const lastFolder = await getLastFolder();
 
@@ -106,6 +134,7 @@ async function createWindow() {
   ipcMain.handle("folder:listTextFiles", handleListTextFiles);
   ipcMain.handle("file:create", handleCreateNewFile);
   ipcMain.handle("file:read", handleReadFile);
+  ipcMain.handle("file:delete", handleDeleteFile);
 
   createMenu(win);
 

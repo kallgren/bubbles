@@ -37,6 +37,14 @@ const api: ElectronAPI = {
   },
   readFile: (folderPath: string, filename: string) =>
     ipcRenderer.invoke("file:read", folderPath, filename),
+  deleteFile: (folderPath: string, filename: string) =>
+    ipcRenderer.invoke("file:delete", folderPath, filename),
+  onMenuDeleteFile: (callback: () => void) => {
+    ipcRenderer.on("menu-delete-file", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-delete-file", callback);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);

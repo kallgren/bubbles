@@ -7,6 +7,8 @@ export interface ElectronAPI {
   createNewFile: (folderPath: string) => Promise<string | null>;
   onMenuNewFile: (callback: () => void) => () => void;
   readFile: (folderPath: string, filename: string) => Promise<string | null>;
+  deleteFile: (folderPath: string, filename: string) => Promise<boolean>;
+  onMenuDeleteFile: (callback: () => void) => () => void;
 }
 
 declare global {

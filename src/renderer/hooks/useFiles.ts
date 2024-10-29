@@ -58,6 +58,24 @@ export function useFiles() {
     setFileContent(null);
   };
 
+  // Handle file deletion
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuDeleteFile(async () => {
+      if (currentFolder && currentFile) {
+        const success = await window.electronAPI.deleteFile(
+          currentFolder,
+          currentFile
+        );
+        if (success) {
+          closeFile();
+          const files = await window.electronAPI.listTextFiles(currentFolder);
+          setTextFiles(files);
+        }
+      }
+    });
+    return cleanup;
+  }, [currentFolder, currentFile]);
+
   return {
     // File system
     currentFolder,
