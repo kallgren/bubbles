@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { ARCHIVE_FOLDER } from "../../config";
 
 interface FileListProps {
   activeFiles: string[];
@@ -64,7 +65,9 @@ const FileList: React.FC<FileListProps> = ({
               }`}
               style={{ userSelect: "none" }}
             >
-              {file.replace(/^archive\//, "").replace(".txt", "")}
+              {file
+                .replace(new RegExp(`^${ARCHIVE_FOLDER}/`), "")
+                .replace(".txt", "")}
             </li>
           );
         })}

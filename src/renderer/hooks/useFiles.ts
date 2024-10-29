@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ARCHIVE_FOLDER } from "../../config";
 
 export function useFiles() {
   // Get initial folder from URL
@@ -96,7 +97,10 @@ export function useFiles() {
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuRestoreFile(() => {
       if (currentFile) {
-        const filename = currentFile.replace(/^archive\//, "");
+        const filename = currentFile.replace(
+          new RegExp(`^${ARCHIVE_FOLDER}/`),
+          ""
+        );
         handleFileOperation(() =>
           window.electronAPI.archiveFile(currentFolder!, filename, true)
         );
@@ -108,7 +112,7 @@ export function useFiles() {
   // Handle archive/restore menu updates
   useEffect(() => {
     if (currentFile) {
-      const isArchived = currentFile.startsWith("archive/");
+      const isArchived = currentFile.startsWith(`${ARCHIVE_FOLDER}/`);
       window.electronAPI.updateMenuEnabled("Archive File", !isArchived);
       window.electronAPI.updateMenuEnabled("Restore File", isArchived);
     } else {

@@ -12,6 +12,7 @@ import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
 import { readdir, readFile, writeFile, mkdir, rename, stat } from "fs/promises";
 import { format } from "date-fns";
+import { ARCHIVE_FOLDER } from "../config";
 
 // Define the NodeJS error type locally
 interface NodeJSError extends Error {
@@ -46,13 +47,13 @@ async function handleFolderOpen() {
 async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
   try {
     const mainFiles = await readdir(folderPath);
-    const archivePath = path.join(folderPath, "archive");
+    const archivePath = path.join(folderPath, ARCHIVE_FOLDER);
     let archiveFiles: string[] = [];
 
     try {
       archiveFiles = (await readdir(archivePath))
         .filter((f) => f.endsWith(".txt"))
-        .map((f) => `archive/${f}`);
+        .map((f) => `${ARCHIVE_FOLDER}/${f}`);
     } catch (error) {
       // Archive folder might not exist yet
     }
@@ -71,11 +72,11 @@ async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
 
     return {
       activeFiles: fileStats
-        .filter((f) => !f.name.startsWith("archive/"))
+        .filter((f) => !f.name.startsWith(`${ARCHIVE_FOLDER}/`))
         .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
         .map((f) => f.name),
       archivedFiles: fileStats
-        .filter((f) => f.name.startsWith("archive/"))
+        .filter((f) => f.name.startsWith(`${ARCHIVE_FOLDER}/`))
         .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
         .map((f) => f.name),
     };
@@ -151,7 +152,7 @@ async function handleArchiveFile(
   isRestore: boolean
 ) {
   try {
-    const archivePath = path.join(folderPath, "archive");
+    const archivePath = path.join(folderPath, ARCHIVE_FOLDER);
 
     if (!isRestore) {
       try {
@@ -164,12 +165,12 @@ async function handleArchiveFile(
 
     const sourcePath = path.join(
       folderPath,
-      isRestore ? "archive" : "",
+      isRestore ? ARCHIVE_FOLDER : "",
       filename
     );
     const targetPath = path.join(
       folderPath,
-      isRestore ? "" : "archive",
+      isRestore ? "" : ARCHIVE_FOLDER,
       filename
     );
 
