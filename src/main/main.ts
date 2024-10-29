@@ -66,6 +66,21 @@ async function handleCreateNewFile(
   }
 }
 
+async function handleReadFile(
+  event: IpcMainInvokeEvent,
+  folderPath: string,
+  filename: string
+) {
+  const fullPath = path.join(folderPath, filename);
+  try {
+    const content = await readFile(fullPath, "utf-8");
+    return content;
+  } catch (error) {
+    console.error("Failed to read file:", error);
+    return null;
+  }
+}
+
 async function createWindow() {
   const lastFolder = await getLastFolder();
 
@@ -90,6 +105,7 @@ async function createWindow() {
   ipcMain.handle("dialog:openFolder", handleFolderOpen);
   ipcMain.handle("folder:listTextFiles", handleListTextFiles);
   ipcMain.handle("file:create", handleCreateNewFile);
+  ipcMain.handle("file:read", handleReadFile);
 
   createMenu(win);
 

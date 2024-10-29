@@ -35,6 +35,8 @@ const api: ElectronAPI = {
       ipcRenderer.removeListener("menu-new-file", callback);
     };
   },
+  readFile: (folderPath: string, filename: string) =>
+    ipcRenderer.invoke("file:read", folderPath, filename),
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);

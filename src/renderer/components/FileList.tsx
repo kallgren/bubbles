@@ -2,13 +2,14 @@ import React, { useState, useRef } from "react";
 
 interface FileListProps {
   files: string[];
+  onFileSelect: (filePath: string) => void;
 }
 
-const FileList: React.FC<FileListProps> = ({ files }) => {
+const FileList: React.FC<FileListProps> = ({ files, onFileSelect }) => {
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const lastSelectedIndex = useRef<number | null>(null);
 
-  const handleItemClick = (index: number, event: React.MouseEvent) => {
+  const handleItemClick = async (index: number, event: React.MouseEvent) => {
     if (event.metaKey || event.ctrlKey) {
       // Cmd (Mac) or Ctrl (Windows) for toggling selection
       setSelectedFiles((prevSelected) => {
@@ -36,6 +37,8 @@ const FileList: React.FC<FileListProps> = ({ files }) => {
       // Single selection
       setSelectedFiles(new Set([index]));
       lastSelectedIndex.current = index;
+      const filePath = files[index];
+      onFileSelect(filePath);
     }
   };
 

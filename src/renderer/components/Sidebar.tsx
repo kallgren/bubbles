@@ -6,6 +6,7 @@ interface SidebarProps {
   setWidth: (width: number) => void;
   currentFolder: string | null;
   files: string[];
+  onFileSelect: (filePath: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -13,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   setWidth,
   currentFolder,
   files,
+  onFileSelect,
 }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const resizerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ref={resizerRef}
         className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-gray-300 active:bg-gray-400"
       />
-      {currentFolder && <FileList files={files} />}
+      {currentFolder && <FileList files={files} onFileSelect={onFileSelect} />}
     </div>
   );
 };

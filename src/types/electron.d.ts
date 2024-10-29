@@ -6,6 +6,7 @@ export interface ElectronAPI {
   listTextFiles: (folderPath: string) => Promise<string[]>;
   createNewFile: (folderPath: string) => Promise<string | null>;
   onMenuNewFile: (callback: () => void) => () => void;
+  readFile: (folderPath: string, filename: string) => Promise<string | null>;
 }
 
 declare global {
