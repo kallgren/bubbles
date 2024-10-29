@@ -1,6 +1,7 @@
 import React from "react";
 import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
+import WelcomeScreen from "./components/WelcomeScreen";
 import { useFiles } from "./hooks/useFiles";
 import { useSidebar } from "./hooks/useSidebar";
 import TitleBar from "./components/TitleBar";
@@ -39,15 +40,11 @@ function App() {
         }`}
       >
         <TitleBar title={currentFile || ""} />
-        <div className="flex-1 ">
+        <div className="flex-1">
           {currentFile ? (
             <Editor filename={currentFile} content={fileContent} />
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <h1 className="text-4xl font-bold text-text dark:text-dark-text">
-                Welcome to Bubbles!
-              </h1>
-            </div>
+            <WelcomeScreen />
           )}
         </div>
       </div>
