@@ -87,22 +87,32 @@ export function useFiles() {
     return cleanup;
   }, [currentFolder, currentFile]);
 
+  const getNextFile = (files: string[], currentFile: string) => {
+    const currentIndex = files.findIndex((f) => f === currentFile);
+    return files[currentIndex - 1] || files[currentIndex + 1] || null;
+  };
+
   // Handle file archiving
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuArchiveFile(async () => {
       if (!currentFolder || !currentFile) return;
+      const nextFile = getNextFile(activeFiles, currentFile);
       const success = await window.electronAPI.archiveFile(
         currentFolder,
         currentFile,
         false
       );
       if (success) {
-        closeFile();
+        if (nextFile) {
+          openFile(currentFolder, nextFile);
+        } else {
+          closeFile();
+        }
         refreshFileLists();
       }
     });
     return cleanup;
-  }, [currentFolder, currentFile]);
+  }, [currentFolder, currentFile, activeFiles]);
 
   // Handle file restoration
   useEffect(() => {
