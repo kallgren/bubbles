@@ -21,6 +21,7 @@ export default {
         text: {
           DEFAULT: "#000000",
           secondary: "#666666",
+          tertiary: "#999999",
         },
         border: "rgba(0, 0, 0, 0.1)",
 
@@ -41,6 +42,7 @@ export default {
           text: {
             DEFAULT: "#ffffff",
             secondary: "#999999",
+            tertiary: "#666666",
           },
           border: "rgba(255, 255, 255, 0.1)",
         },
