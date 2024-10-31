@@ -61,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div
           ref={resizerRef}
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary-hover dark:hover:bg-dark-primary-hover active:bg-secondary-hover dark:active:bg-dark-secondary-hover"
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary-hover dark:hover:bg-dark-border active:bg-secondary-hover dark:active:bg-dark-secondary-hover"
         />
         <TitleBar />
         {currentFolder && (
