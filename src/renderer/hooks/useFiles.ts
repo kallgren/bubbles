@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSettings } from "./useSettings";
 
 export function useFiles() {
@@ -163,6 +163,87 @@ export function useFiles() {
     });
     return cleanup;
   }, []);
+
+  // Navigation functions
+  const navigateToFirst = useCallback(() => {
+    if (!currentFolder || !activeFiles.length) return;
+    openFile(currentFolder, activeFiles[0]);
+  }, [currentFolder, activeFiles]);
+
+  const navigateToLast = useCallback(() => {
+    if (!currentFolder || !activeFiles.length) return;
+    openFile(currentFolder, activeFiles[activeFiles.length - 1]);
+  }, [currentFolder, activeFiles]);
+
+  const navigateToOlder = useCallback(() => {
+    if (!currentFolder || !currentFile) return;
+
+    const isArchived = currentFile.startsWith(`${settings.archiveFolderName}/`);
+    const files = isArchived ? archivedFiles : activeFiles;
+    const currentIndex = files.indexOf(currentFile);
+
+    if (currentIndex < files.length - 1) {
+      openFile(currentFolder, files[currentIndex + 1]);
+    }
+  }, [
+    currentFolder,
+    currentFile,
+    activeFiles,
+    archivedFiles,
+    settings.archiveFolderName,
+  ]);
+
+  const navigateToNewer = useCallback(() => {
+    if (!currentFolder || !currentFile) return;
+
+    const isArchived = currentFile.startsWith(`${settings.archiveFolderName}/`);
+    const files = isArchived ? archivedFiles : activeFiles;
+    const currentIndex = files.indexOf(currentFile);
+
+    if (currentIndex > 0) {
+      openFile(currentFolder, files[currentIndex - 1]);
+    }
+  }, [
+    currentFolder,
+    currentFile,
+    activeFiles,
+    archivedFiles,
+    settings.archiveFolderName,
+  ]);
+
+  // Add navigation menu handlers
+  useEffect(() => {
+    const cleanupFirst = window.electronAPI.onMenuFirstItem(navigateToFirst);
+    const cleanupOlder = window.electronAPI.onMenuPreviousItem(navigateToOlder);
+    const cleanupNewer = window.electronAPI.onMenuNextItem(navigateToNewer);
+    const cleanupLast = window.electronAPI.onMenuLastItem(navigateToLast);
+
+    return () => {
+      cleanupFirst();
+      cleanupOlder();
+      cleanupNewer();
+      cleanupLast();
+    };
+  }, [navigateToFirst, navigateToOlder, navigateToNewer, navigateToLast]);
+
+  // Update menu enabled states
+  useEffect(() => {
+    const hasFiles = activeFiles.length > 0;
+    const hasCurrentFile = currentFile !== null;
+    const isArchived = currentFile?.startsWith(
+      `${settings.archiveFolderName}/`
+    );
+    const files = isArchived ? archivedFiles : activeFiles;
+    const currentIndex = hasCurrentFile ? files.indexOf(currentFile) : -1;
+
+    window.electronAPI.updateMenuEnabled("Newest Bubble", hasFiles);
+    window.electronAPI.updateMenuEnabled("Oldest Bubble", hasFiles);
+    window.electronAPI.updateMenuEnabled("Newer Bubble", currentIndex > 0);
+    window.electronAPI.updateMenuEnabled(
+      "Older Bubble",
+      hasCurrentFile && currentIndex < files.length - 1
+    );
+  }, [currentFile, activeFiles, archivedFiles, settings.archiveFolderName]);
 
   return {
     // File system

@@ -267,12 +267,17 @@ async function createWindow() {
     "menu:updateEnabled",
     (event, menuId: string, enabled: boolean) => {
       const menu = Menu.getApplicationMenu();
-      const fileMenu = menu?.items.find((item) => item.label === "File");
-      const menuItem = fileMenu?.submenu?.items.find(
-        (item) => item.label === menuId
-      );
-      if (menuItem) {
-        menuItem.enabled = enabled;
+      if (!menu) return;
+
+      // Search through all menus for the item
+      for (const topMenu of menu.items) {
+        const menuItem = topMenu.submenu?.items.find(
+          (item) => item.label === menuId
+        );
+        if (menuItem) {
+          menuItem.enabled = enabled;
+          break;
+        }
       }
     }
   );

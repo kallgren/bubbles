@@ -30,6 +30,10 @@ export interface ElectronAPI {
   saveSettings: (settings: Settings) => Promise<boolean>;
   openSettings: () => Promise<void>;
   onMenuOpenSettings: (callback: () => void) => () => void;
+  onMenuFirstItem: (callback: () => void) => () => void;
+  onMenuPreviousItem: (callback: () => void) => () => void;
+  onMenuNextItem: (callback: () => void) => () => void;
+  onMenuLastItem: (callback: () => void) => () => void;
 }
 
 declare global {

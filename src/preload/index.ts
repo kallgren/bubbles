@@ -77,6 +77,30 @@ const api: ElectronAPI = {
       ipcRenderer.removeListener("menu-open-settings", callback);
     };
   },
+  onMenuFirstItem: (callback: () => void) => {
+    ipcRenderer.on("menu-first-item", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-first-item", callback);
+    };
+  },
+  onMenuPreviousItem: (callback: () => void) => {
+    ipcRenderer.on("menu-previous-item", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-previous-item", callback);
+    };
+  },
+  onMenuNextItem: (callback: () => void) => {
+    ipcRenderer.on("menu-next-item", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-next-item", callback);
+    };
+  },
+  onMenuLastItem: (callback: () => void) => {
+    ipcRenderer.on("menu-last-item", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-last-item", callback);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);

@@ -133,6 +133,43 @@ export function createMenu(mainWindow: BrowserWindow) {
           : []),
       ],
     },
+    {
+      label: "Navigate",
+      submenu: [
+        {
+          label: "Newest Bubble",
+          accelerator: "CmdOrCtrl+Shift+B",
+          enabled: false,
+          click: () => {
+            mainWindow.webContents.send("menu-first-item");
+          },
+        },
+        {
+          label: "Older Bubble",
+          accelerator: "CmdOrCtrl+J",
+          enabled: false,
+          click: () => {
+            mainWindow.webContents.send("menu-previous-item");
+          },
+        },
+        {
+          label: "Newer Bubble",
+          accelerator: "CmdOrCtrl+K",
+          enabled: false,
+          click: () => {
+            mainWindow.webContents.send("menu-next-item");
+          },
+        },
+        {
+          label: "Oldest Bubble",
+          accelerator: "CmdOrCtrl+Shift+O",
+          enabled: false,
+          click: () => {
+            mainWindow.webContents.send("menu-last-item");
+          },
+        },
+      ],
+    },
   ];
 
   const menu = Menu.buildFromTemplate(template);
