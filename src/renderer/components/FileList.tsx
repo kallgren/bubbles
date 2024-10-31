@@ -49,21 +49,23 @@ const FileList: React.FC<FileListProps> = ({
 
   const renderFileSection = (
     files: string[],
-    title: string,
+    title: string | null,
     startIndex: number,
     isArchive = false
   ) => (
     <div className="mb-6">
-      <button
-        onClick={() => isArchive && setIsArchiveOpen(!isArchiveOpen)}
-        className="flex items-center w-full text-lg font-semibold mb-2 cursor-default"
-        disabled={!isArchive}
-      >
-        {isArchive && (
-          <span className="mr-1 text-sm">{isArchiveOpen ? "▼" : "▶"}</span>
-        )}
-        {title}
-      </button>
+      {title && (
+        <button
+          onClick={() => isArchive && setIsArchiveOpen(!isArchiveOpen)}
+          className="flex items-center w-full text-lg font-semibold mb-2 cursor-default"
+          disabled={!isArchive}
+        >
+          {isArchive && (
+            <span className="mr-1 text-sm">{isArchiveOpen ? "▼" : "▶"}</span>
+          )}
+          {title}
+        </button>
+      )}
       {(!isArchive || isArchiveOpen) && (
         <ul className="space-y-1">
           {files.map((file, idx) => {
@@ -93,7 +95,7 @@ const FileList: React.FC<FileListProps> = ({
 
   return (
     <div className="p-4">
-      {renderFileSection(activeFiles, "Bubbles", 0)}
+      {renderFileSection(activeFiles, null, 0)}
       {archivedFiles.length > 0 &&
         renderFileSection(archivedFiles, "Archive", activeFiles.length, true)}
     </div>
