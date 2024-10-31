@@ -80,12 +80,22 @@ export function useFiles() {
   }, []);
 
   const openFile = async (folderPath: string, filename: string) => {
+    // Always save current file before opening new one
+    if (currentFile && fileContent) {
+      await saveCurrentFile(fileContent);
+    }
+
     const content = await window.electronAPI.readFile(folderPath, filename);
     setCurrentFile(filename);
     setFileContent(content);
   };
 
-  const closeFile = () => {
+  const closeFile = async () => {
+    // Always save current file before closing
+    if (currentFile && fileContent) {
+      await saveCurrentFile(fileContent);
+    }
+
     setCurrentFile(null);
     setFileContent(null);
   };
@@ -181,21 +191,10 @@ export function useFiles() {
     return cleanup;
   }, []);
 
-  const [unsavedChanges, setUnsavedChanges] = useState(false);
-
   const saveCurrentFile = useCallback(
     async (content: string) => {
       if (!currentFolder || !currentFile) return;
-
-      const success = await window.electronAPI.saveFile(
-        currentFolder,
-        currentFile,
-        content
-      );
-
-      if (success) {
-        setUnsavedChanges(false);
-      }
+      await window.electronAPI.saveFile(currentFolder, currentFile, content);
     },
     [currentFolder, currentFile]
   );
@@ -210,7 +209,6 @@ export function useFiles() {
 
   const handleContentChange = (newContent: string) => {
     setFileContent(newContent);
-    setUnsavedChanges(true);
     debouncedSave(newContent);
   };
 
@@ -226,6 +224,5 @@ export function useFiles() {
     openFile,
     closeFile,
     handleContentChange,
-    unsavedChanges,
   };
 }
