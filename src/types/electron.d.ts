@@ -1,3 +1,8 @@
+export interface Settings {
+  autoAdvance: boolean;
+  archiveFolderName: string;
+}
+
 export interface ElectronAPI {
   onToggleSidebar: (callback: () => void) => () => void;
   onMenuOpenFolder: (callback: () => void) => () => void;
@@ -21,6 +26,10 @@ export interface ElectronAPI {
   onMenuRestoreFile: (callback: () => void) => () => void;
   updateMenuEnabled: (menuId: string, enabled: boolean) => Promise<void>;
   onMenuCloseFile: (callback: () => void) => () => void;
+  getSettings: () => Promise<Settings>;
+  saveSettings: (settings: Settings) => Promise<boolean>;
+  openSettings: () => Promise<void>;
+  onMenuOpenSettings: (callback: () => void) => () => void;
 }
 
 declare global {

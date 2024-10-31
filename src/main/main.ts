@@ -12,7 +12,9 @@ import isDev from "electron-is-dev";
 import { createMenu } from "./menu";
 import { readdir, readFile, writeFile, mkdir, rename, stat } from "fs/promises";
 import { format } from "date-fns";
-import { ARCHIVE_FOLDER } from "../config";
+import fs from "fs/promises";
+import { DEFAULT_SETTINGS } from "../config";
+import { Settings } from "../types/electron";
 
 // Define the NodeJS error type locally
 interface NodeJSError extends Error {
@@ -46,14 +48,15 @@ async function handleFolderOpen() {
 
 async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
   try {
+    const settings = await handleGetSettings();
     const mainFiles = await readdir(folderPath);
-    const archivePath = path.join(folderPath, ARCHIVE_FOLDER);
+    const archivePath = path.join(folderPath, settings.archiveFolderName);
     let archiveFiles: string[] = [];
 
     try {
       archiveFiles = (await readdir(archivePath))
         .filter((f) => f.endsWith(".txt"))
-        .map((f) => `${ARCHIVE_FOLDER}/${f}`);
+        .map((f) => `${settings.archiveFolderName}/${f}`);
     } catch (error) {
       // Archive folder might not exist yet
     }
@@ -72,11 +75,11 @@ async function handleGetFiles(event: IpcMainInvokeEvent, folderPath: string) {
 
     return {
       activeFiles: fileStats
-        .filter((f) => !f.name.startsWith(`${ARCHIVE_FOLDER}/`))
+        .filter((f) => !f.name.startsWith(`${settings.archiveFolderName}/`))
         .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
         .map((f) => f.name),
       archivedFiles: fileStats
-        .filter((f) => f.name.startsWith(`${ARCHIVE_FOLDER}/`))
+        .filter((f) => f.name.startsWith(`${settings.archiveFolderName}/`))
         .sort((a, b) => b.birthtime.getTime() - a.birthtime.getTime())
         .map((f) => f.name),
     };
@@ -152,7 +155,8 @@ async function handleArchiveFile(
   isRestore: boolean
 ) {
   try {
-    const archivePath = path.join(folderPath, ARCHIVE_FOLDER);
+    const settings = await handleGetSettings();
+    const archivePath = path.join(folderPath, settings.archiveFolderName);
 
     if (!isRestore) {
       try {
@@ -165,12 +169,12 @@ async function handleArchiveFile(
 
     const sourcePath = path.join(
       folderPath,
-      isRestore ? ARCHIVE_FOLDER : "",
+      isRestore ? settings.archiveFolderName : "",
       filename
     );
     const targetPath = path.join(
       folderPath,
-      isRestore ? "" : ARCHIVE_FOLDER,
+      isRestore ? "" : settings.archiveFolderName,
       filename
     );
 
@@ -178,6 +182,51 @@ async function handleArchiveFile(
     return true;
   } catch (error) {
     console.error("Failed to archive/restore file:", error);
+    return false;
+  }
+}
+
+async function handleGetSettings() {
+  try {
+    const settingsPath = path.join(app.getPath("userData"), "settings.json");
+    const settings = await fs.readFile(settingsPath, "utf-8");
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(settings) };
+  } catch (error) {
+    const nodeError = error as NodeJSError;
+    if (nodeError.code === "ENOENT") {
+      console.log("No settings file found, using defaults");
+    } else {
+      console.error("Failed to load settings:", error);
+    }
+    return DEFAULT_SETTINGS;
+  }
+}
+
+async function handleSaveSettings(
+  event: IpcMainInvokeEvent,
+  settings: Settings
+) {
+  try {
+    if (!settings || typeof settings !== "object") {
+      throw new Error("Invalid settings object");
+    }
+
+    const validatedSettings: Settings = {
+      autoAdvance: Boolean(settings.autoAdvance),
+      archiveFolderName: String(
+        settings.archiveFolderName || DEFAULT_SETTINGS.archiveFolderName
+      ),
+    };
+
+    const settingsPath = path.join(app.getPath("userData"), "settings.json");
+    await fs.writeFile(
+      settingsPath,
+      JSON.stringify(validatedSettings),
+      "utf-8"
+    );
+    return true;
+  } catch (error) {
+    console.error("Failed to save settings:", error);
     return false;
   }
 }
@@ -227,6 +276,9 @@ async function createWindow() {
       }
     }
   );
+
+  ipcMain.handle("settings:get", handleGetSettings);
+  ipcMain.handle("settings:save", handleSaveSettings);
 
   createMenu(win);
 

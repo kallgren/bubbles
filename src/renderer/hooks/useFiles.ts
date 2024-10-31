@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { ARCHIVE_FOLDER } from "../../config";
+import { useSettings } from "./useSettings";
 
 export function useFiles() {
+  const { settings } = useSettings();
+
   // Get initial folder from URL
   const params = new URLSearchParams(window.location.search);
   const initialFolder = params.get("folder");
@@ -96,7 +98,9 @@ export function useFiles() {
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuArchiveFile(async () => {
       if (!currentFolder || !currentFile) return;
-      const nextFile = getNextFile(activeFiles, currentFile);
+      const nextFile = settings.autoAdvance
+        ? getNextFile(activeFiles, currentFile)
+        : null;
       const success = await window.electronAPI.archiveFile(
         currentFolder,
         currentFile,
@@ -112,14 +116,14 @@ export function useFiles() {
       }
     });
     return cleanup;
-  }, [currentFolder, currentFile, activeFiles]);
+  }, [currentFolder, currentFile, activeFiles, settings.autoAdvance]);
 
   // Handle file restoration
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuRestoreFile(async () => {
       if (!currentFolder || !currentFile) return;
       const filename = currentFile.replace(
-        new RegExp(`^${ARCHIVE_FOLDER}/`),
+        new RegExp(`^${settings.archiveFolderName}/`),
         ""
       );
       const success = await window.electronAPI.archiveFile(
@@ -137,7 +141,9 @@ export function useFiles() {
   // Handle menu updates
   useEffect(() => {
     if (currentFile) {
-      const isArchived = currentFile.startsWith(`${ARCHIVE_FOLDER}/`);
+      const isArchived = currentFile.startsWith(
+        `${settings.archiveFolderName}/`
+      );
       window.electronAPI.updateMenuEnabled("Archive File", !isArchived);
       window.electronAPI.updateMenuEnabled("Restore File", isArchived);
       window.electronAPI.updateMenuEnabled("Close File", true);

@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { useFiles } from "./hooks/useFiles";
 import { useSidebar } from "./hooks/useSidebar";
 import TitleBar from "./components/TitleBar";
+import { SettingsModal } from "./components/SettingsModal";
 
 function App() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuOpenSettings(() => {
+      setIsSettingsOpen(true);
+    });
+    return cleanup;
+  }, []);
+
   const {
     currentFolder,
     activeFiles,
@@ -48,6 +58,10 @@ function App() {
           )}
         </div>
       </div>
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

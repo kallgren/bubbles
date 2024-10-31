@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
-import { ElectronAPI } from "../types/electron";
+import { ElectronAPI, Settings } from "../types/electron";
 
 const api: ElectronAPI = {
   onToggleSidebar: (
@@ -65,6 +65,16 @@ const api: ElectronAPI = {
     ipcRenderer.on("menu-close-file", callback);
     return () => {
       ipcRenderer.removeListener("menu-close-file", callback);
+    };
+  },
+  getSettings: () => ipcRenderer.invoke("settings:get"),
+  saveSettings: (settings: Settings) =>
+    ipcRenderer.invoke("settings:save", settings),
+  openSettings: () => ipcRenderer.invoke("window:openSettings"),
+  onMenuOpenSettings: (callback: () => void) => {
+    ipcRenderer.on("menu-open-settings", callback);
+    return () => {
+      ipcRenderer.removeListener("menu-open-settings", callback);
     };
   },
 };

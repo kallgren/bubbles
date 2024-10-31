@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { ARCHIVE_FOLDER } from "../../config";
+import { useSettings } from "../hooks/useSettings";
 
 interface FileListProps {
   activeFiles: string[];
@@ -12,6 +12,7 @@ const FileList: React.FC<FileListProps> = ({
   archivedFiles,
   onFileSelect,
 }) => {
+  const { settings } = useSettings();
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const lastSelectedIndex = useRef<number | null>(null);
@@ -80,7 +81,7 @@ const FileList: React.FC<FileListProps> = ({
                 style={{ userSelect: "none" }}
               >
                 {file
-                  .replace(new RegExp(`^${ARCHIVE_FOLDER}/`), "")
+                  .replace(new RegExp(`^${settings.archiveFolderName}/`), "")
                   .replace(".txt", "")}
               </li>
             );

@@ -1,4 +1,7 @@
-export const ARCHIVE_FOLDER = "archive";
+export const DEFAULT_SETTINGS = {
+  autoAdvance: true,
+  archiveFolderName: "archive",
+};
 
 export const WELCOME_MESSAGES = [
   "Hey, what ya lookin' at?",
