@@ -77,6 +77,8 @@ const api: ElectronAPI = {
       ipcRenderer.removeListener("menu-open-settings", callback);
     };
   },
+  saveFile: (folderPath: string, filename: string, content: string) =>
+    ipcRenderer.invoke("file:save", folderPath, filename, content),
 };
 
 contextBridge.exposeInMainWorld("electronAPI", api);

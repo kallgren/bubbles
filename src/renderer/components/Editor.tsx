@@ -3,10 +3,15 @@ import React from "react";
 interface EditorProps {
   filename: string | null;
   content: string | null;
+  onChange?: (content: string) => void;
 }
 
-const Editor: React.FC<EditorProps> = ({ filename, content }) => {
+const Editor: React.FC<EditorProps> = ({ filename, content, onChange }) => {
   const displayName = filename?.replace(".txt", "");
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value);
+  };
 
   return (
     <div className="flex flex-col bg-primary dark:bg-dark-primary h-full">
@@ -17,7 +22,7 @@ const Editor: React.FC<EditorProps> = ({ filename, content }) => {
         <textarea
           className="w-full h-full border-none outline-none resize-none bg-transparent"
           value={content ?? ""}
-          readOnly
+          onChange={handleChange}
         />
       </div>
     </div>

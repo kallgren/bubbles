@@ -1,5 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSettings } from "./useSettings";
+
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 export function useFiles() {
   const { settings } = useSettings();
@@ -164,6 +181,39 @@ export function useFiles() {
     return cleanup;
   }, []);
 
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
+
+  const saveCurrentFile = useCallback(
+    async (content: string) => {
+      if (!currentFolder || !currentFile) return;
+
+      const success = await window.electronAPI.saveFile(
+        currentFolder,
+        currentFile,
+        content
+      );
+
+      if (success) {
+        setUnsavedChanges(false);
+      }
+    },
+    [currentFolder, currentFile]
+  );
+
+  // Create debounced save function
+  const debouncedSave = useCallback(
+    debounce((content: string) => {
+      saveCurrentFile(content);
+    }, 1000),
+    [saveCurrentFile]
+  );
+
+  const handleContentChange = (newContent: string) => {
+    setFileContent(newContent);
+    setUnsavedChanges(true);
+    debouncedSave(newContent);
+  };
+
   return {
     // File system
     currentFolder,
@@ -175,5 +225,7 @@ export function useFiles() {
     // Actions
     openFile,
     closeFile,
+    handleContentChange,
+    unsavedChanges,
   };
 }

@@ -24,6 +24,7 @@ function App() {
     currentFile,
     fileContent,
     openFile,
+    handleContentChange,
   } = useFiles();
 
   const { showSidebar, sidebarWidth, setSidebarWidth } = useSidebar();
@@ -52,7 +53,11 @@ function App() {
         <TitleBar title={currentFile || ""} />
         <div className="flex-1">
           {currentFile ? (
-            <Editor filename={currentFile} content={fileContent} />
+            <Editor
+              filename={currentFile}
+              content={fileContent}
+              onChange={handleContentChange}
+            />
           ) : (
             <WelcomeScreen />
           )}

@@ -30,6 +30,11 @@ export interface ElectronAPI {
   saveSettings: (settings: Settings) => Promise<boolean>;
   openSettings: () => Promise<void>;
   onMenuOpenSettings: (callback: () => void) => () => void;
+  saveFile: (
+    folderPath: string,
+    filename: string,
+    content: string
+  ) => Promise<boolean>;
 }
 
 declare global {

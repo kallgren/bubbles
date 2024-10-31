@@ -231,6 +231,22 @@ async function handleSaveSettings(
   }
 }
 
+async function handleSaveFile(
+  event: IpcMainInvokeEvent,
+  folderPath: string,
+  filename: string,
+  content: string
+) {
+  const fullPath = path.join(folderPath, filename);
+  try {
+    await writeFile(fullPath, content);
+    return true;
+  } catch (error) {
+    console.error("Failed to save file:", error);
+    return false;
+  }
+}
+
 async function createWindow() {
   const lastFolder = await getLastFolder();
 
@@ -279,6 +295,8 @@ async function createWindow() {
 
   ipcMain.handle("settings:get", handleGetSettings);
   ipcMain.handle("settings:save", handleSaveSettings);
+
+  ipcMain.handle("file:save", handleSaveFile);
 
   createMenu(win);
 
