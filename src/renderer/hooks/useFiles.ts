@@ -22,22 +22,27 @@ export function useFiles() {
 
   // Load files when folder changes
   useEffect(() => {
-    if (currentFolder) {
-      window.electronAPI
-        .getFiles(currentFolder)
-        .then(({ activeFiles, archivedFiles }) => {
-          setActiveFiles(activeFiles);
-          setArchivedFiles(archivedFiles);
-        });
-    }
+    refreshFileLists();
   }, [currentFolder]);
+
+  const refreshFileLists = async () => {
+    if (!currentFolder) return;
+    const { activeFiles, archivedFiles } = await window.electronAPI.getFiles(
+      currentFolder
+    );
+    setActiveFiles(activeFiles);
+    setArchivedFiles(archivedFiles);
+  };
 
   // Handle new file creation
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuNewFile(() => {
-      handleFileOperation(
-        async () => !!(await window.electronAPI.createNewFile(currentFolder!))
-      );
+    const cleanup = window.electronAPI.onMenuNewFile(async () => {
+      if (!currentFolder) return;
+      const filename = await window.electronAPI.createNewFile(currentFolder);
+      if (filename) {
+        openFile(currentFolder, filename);
+        refreshFileLists();
+      }
     });
     return cleanup;
   }, [currentFolder]);
@@ -68,12 +73,15 @@ export function useFiles() {
 
   // Handle file deletion
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuDeleteFile(() => {
-      if (currentFile) {
-        handleFileOperation(
-          () => window.electronAPI.deleteFile(currentFolder!, currentFile),
-          closeFile
-        );
+    const cleanup = window.electronAPI.onMenuDeleteFile(async () => {
+      if (!currentFolder || !currentFile) return;
+      const success = await window.electronAPI.deleteFile(
+        currentFolder,
+        currentFile
+      );
+      if (success) {
+        closeFile();
+        refreshFileLists();
       }
     });
     return cleanup;
@@ -81,13 +89,16 @@ export function useFiles() {
 
   // Handle file archiving
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuArchiveFile(() => {
-      if (currentFile) {
-        handleFileOperation(
-          () =>
-            window.electronAPI.archiveFile(currentFolder!, currentFile, false),
-          closeFile
-        );
+    const cleanup = window.electronAPI.onMenuArchiveFile(async () => {
+      if (!currentFolder || !currentFile) return;
+      const success = await window.electronAPI.archiveFile(
+        currentFolder,
+        currentFile,
+        false
+      );
+      if (success) {
+        closeFile();
+        refreshFileLists();
       }
     });
     return cleanup;
@@ -95,15 +106,19 @@ export function useFiles() {
 
   // Handle file restoration
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuRestoreFile(() => {
-      if (currentFile) {
-        const filename = currentFile.replace(
-          new RegExp(`^${ARCHIVE_FOLDER}/`),
-          ""
-        );
-        handleFileOperation(() =>
-          window.electronAPI.archiveFile(currentFolder!, filename, true)
-        );
+    const cleanup = window.electronAPI.onMenuRestoreFile(async () => {
+      if (!currentFolder || !currentFile) return;
+      const filename = currentFile.replace(
+        new RegExp(`^${ARCHIVE_FOLDER}/`),
+        ""
+      );
+      const success = await window.electronAPI.archiveFile(
+        currentFolder,
+        filename,
+        true
+      );
+      if (success) {
+        refreshFileLists();
       }
     });
     return cleanup;
@@ -132,23 +147,6 @@ export function useFiles() {
     });
     return cleanup;
   }, []);
-
-  const handleFileOperation = async (
-    operation: () => Promise<boolean>,
-    onSuccess?: () => void
-  ) => {
-    if (!currentFolder) return;
-
-    const success = await operation();
-    if (success) {
-      if (onSuccess) onSuccess();
-      const { activeFiles, archivedFiles } = await window.electronAPI.getFiles(
-        currentFolder
-      );
-      setActiveFiles(activeFiles);
-      setArchivedFiles(archivedFiles);
-    }
-  };
 
   return {
     // File system
