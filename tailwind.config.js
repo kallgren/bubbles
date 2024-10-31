@@ -22,6 +22,7 @@ export default {
           DEFAULT: "#000000",
           secondary: "#666666",
           tertiary: "#999999",
+          highlight: "#000000",
         },
         border: "rgba(0, 0, 0, 0.1)",
 
@@ -33,7 +34,7 @@ export default {
           },
           secondary: {
             DEFAULT: "#2a2a2a",
-            hover: "#323232",
+            hover: "#363636",
           },
           tertiary: {
             DEFAULT: "#232323",
@@ -43,6 +44,7 @@ export default {
             DEFAULT: "#ffffff",
             secondary: "#999999",
             tertiary: "#666666",
+            highlight: "#bbbbbb",
           },
           border: "rgba(255, 255, 255, 0.1)",
         },

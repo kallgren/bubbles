@@ -67,7 +67,7 @@ const FileList: React.FC<FileListProps> = ({
         </button>
       )}
       {(!isArchive || isArchiveOpen) && (
-        <ul className="space-y-1">
+        <ul className="space-y-0.5">
           {files.map((file, idx) => {
             const index = startIndex + idx;
             return (
@@ -75,9 +75,9 @@ const FileList: React.FC<FileListProps> = ({
                 key={file}
                 tabIndex={0}
                 onClick={(event) => handleItemClick(index, event)}
-                className={`text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text dark:hover:text-dark-text hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`px-2 py-0.5 rounded-md text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text-highlight dark:hover:text-dark-text-highlight hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   selectedFiles.has(index)
-                    ? "bg-secondary-hover dark:bg-dark-secondary-hover"
+                    ? "bg-secondary-hover dark:bg-dark-secondary-hover text-text-highlight dark:text-dark-text-highlight"
                     : ""
                 }`}
                 style={{ userSelect: "none" }}
