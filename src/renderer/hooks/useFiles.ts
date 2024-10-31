@@ -125,14 +125,22 @@ export function useFiles() {
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuArchiveFile(async () => {
       if (!currentFolder || !currentFile) return;
+
+      // Save current file before archiving
+      if (fileContent) {
+        await saveCurrentFile(fileContent);
+      }
+
       const nextFile = settings.autoAdvance
         ? getNextFile(activeFiles, currentFile)
         : null;
+
       const success = await window.electronAPI.archiveFile(
         currentFolder,
         currentFile,
         false
       );
+
       if (success) {
         if (nextFile) {
           openFile(currentFolder, nextFile);
