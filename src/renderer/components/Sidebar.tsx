@@ -8,6 +8,7 @@ interface SidebarProps {
   currentFolder: string | null;
   activeFiles: string[];
   archivedFiles: string[];
+  currentFile: string | null;
   onFileSelect: (filePath: string) => void;
 }
 
@@ -17,6 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentFolder,
   activeFiles,
   archivedFiles,
+  currentFile,
   onFileSelect,
 }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -68,6 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <FileList
             activeFiles={activeFiles}
             archivedFiles={archivedFiles}
+            currentFile={currentFile}
             onFileSelect={onFileSelect}
           />
         )}

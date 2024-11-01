@@ -37,6 +37,7 @@ function App() {
           currentFolder={currentFolder}
           activeFiles={activeFiles}
           archivedFiles={archivedFiles}
+          currentFile={currentFile}
           onFileSelect={(filename) =>
             currentFolder && filename && openFile(currentFolder, filename)
           }

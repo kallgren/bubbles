@@ -1,21 +1,29 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSettings } from "../hooks/useSettings";
 
 interface FileListProps {
   activeFiles: string[];
   archivedFiles: string[];
+  currentFile: string | null;
   onFileSelect: (filePath: string) => void;
 }
 
 const FileList: React.FC<FileListProps> = ({
   activeFiles,
   archivedFiles,
+  currentFile,
   onFileSelect,
 }) => {
   const { settings } = useSettings();
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const lastSelectedIndex = useRef<number | null>(null);
+
+  // Only reset selection when folder/files change, not on every file change
+  useEffect(() => {
+    setSelectedFiles(new Set());
+    lastSelectedIndex.current = null;
+  }, [activeFiles, archivedFiles]);
 
   const handleItemClick = (index: number, event: React.MouseEvent) => {
     const files = [...activeFiles, ...archivedFiles];
@@ -75,11 +83,7 @@ const FileList: React.FC<FileListProps> = ({
                 key={file}
                 tabIndex={0}
                 onClick={(event) => handleItemClick(index, event)}
-                className={`px-2 py-0.5 rounded-md text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text-highlight dark:hover:text-dark-text-highlight hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  selectedFiles.has(index)
-                    ? "bg-secondary-hover dark:bg-dark-secondary-hover text-text-highlight dark:text-dark-text-highlight"
-                    : ""
-                }`}
+                className={getItemClassName(file, index)}
                 style={{ userSelect: "none" }}
               >
                 {file
@@ -92,6 +96,17 @@ const FileList: React.FC<FileListProps> = ({
       )}
     </div>
   );
+
+  const getItemClassName = (file: string, index: number) => {
+    const isSelected = selectedFiles.has(index);
+    const isCurrent = file === currentFile;
+
+    return `px-2 py-0.5 rounded-md text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text-highlight dark:hover:text-dark-text-highlight hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+      isSelected || isCurrent
+        ? "bg-secondary-hover dark:bg-dark-secondary-hover text-text-highlight dark:text-dark-text-highlight"
+        : ""
+    }`;
+  };
 
   return (
     <div className="p-4">
