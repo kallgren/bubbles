@@ -74,11 +74,31 @@ export default {
             transform: "translate(var(--mouse-x), calc(var(--mouse-y) - 4px))",
           },
         },
+        "slide-up": {
+          "0%": { height: "var(--expanded-height)" },
+          "100%": { height: "0px" },
+        },
+        "slide-down": {
+          "0%": { height: "0px" },
+          "100%": { height: "var(--expanded-height)" },
+        },
+        "slide-left": {
+          "0%": { width: "var(--expanded-width)" },
+          "100%": { width: "0px" },
+        },
+        "slide-right": {
+          "0%": { width: "0px" },
+          "100%": { width: "var(--expanded-width)" },
+        },
       },
       animation: {
         "float-large": "float-large 3s ease-in-out infinite",
         "float-medium": "float-medium 3s ease-in-out 0.5s infinite",
         "float-small": "float-small 3s ease-in-out 1s infinite",
+        "slide-up": "slide-up 0.2s ease-out forwards",
+        "slide-down": "slide-down 0.2s ease-out forwards",
+        "slide-left": "slide-left 0.2s ease-out forwards",
+        "slide-right": "slide-right 0.2s ease-out forwards",
       },
     },
   },

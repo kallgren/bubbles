@@ -30,19 +30,33 @@ function App() {
 
   return (
     <div className="flex h-screen text-text dark:text-dark-text">
-      {showSidebar && (
-        <Sidebar
-          width={sidebarWidth}
-          setWidth={setSidebarWidth}
-          currentFolder={currentFolder}
-          activeFiles={activeFiles}
-          archivedFiles={archivedFiles}
-          currentFile={currentFile}
-          onFileSelect={(filename) =>
-            currentFolder && filename && openFile(currentFolder, filename)
-          }
-        />
-      )}
+      <div
+        className="overflow-x-hidden"
+        style={
+          {
+            "--expanded-width": `${sidebarWidth}px`,
+          } as React.CSSProperties
+        }
+      >
+        <div
+          style={{ width: `${sidebarWidth}px` }}
+          className={`${
+            showSidebar ? "animate-slide-right" : "animate-slide-left"
+          }`}
+        >
+          <Sidebar
+            width={sidebarWidth}
+            setWidth={setSidebarWidth}
+            currentFolder={currentFolder}
+            activeFiles={activeFiles}
+            archivedFiles={archivedFiles}
+            currentFile={currentFile}
+            onFileSelect={(filename) =>
+              currentFolder && filename && openFile(currentFolder, filename)
+            }
+          />
+        </div>
+      </div>
       <div
         className={`flex flex-col flex-1 ${
           currentFile

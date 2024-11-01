@@ -16,16 +16,19 @@ const FileList: React.FC<FileListProps> = ({
 }) => {
   const { settings } = useSettings();
   const [selectedFiles, setSelectedFiles] = useState<Set<number>>(new Set());
-  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
   const lastSelectedIndex = useRef<number | null>(null);
 
-  // Only reset selection when folder/files change, not on every file change
+  // Reset selected files when files change
   useEffect(() => {
     setSelectedFiles(new Set());
     lastSelectedIndex.current = null;
+    console.log("lastSelectedIndex reset");
   }, [activeFiles, archivedFiles]);
 
+  const files = [...activeFiles, ...archivedFiles];
+
   const handleItemClick = (index: number, event: React.MouseEvent) => {
+    console.log("lastSelectedIndex", lastSelectedIndex.current);
     const files = [...activeFiles, ...archivedFiles];
     const file = files[index];
 
@@ -53,66 +56,39 @@ const FileList: React.FC<FileListProps> = ({
       onFileSelect(file);
     }
     lastSelectedIndex.current = index;
+    console.log("lastSelectedIndex", lastSelectedIndex.current);
   };
-
-  const renderFileSection = (
-    files: string[],
-    title: string | null,
-    startIndex: number,
-    isArchive = false
-  ) => (
-    <div className="mb-6">
-      {title && (
-        <button
-          onClick={() => isArchive && setIsArchiveOpen(!isArchiveOpen)}
-          className="flex items-center w-full text-lg font-semibold mb-2 cursor-default"
-          disabled={!isArchive}
-        >
-          {isArchive && (
-            <span className="mr-1 text-sm">{isArchiveOpen ? "▼" : "▶"}</span>
-          )}
-          {title}
-        </button>
-      )}
-      {(!isArchive || isArchiveOpen) && (
-        <ul className="space-y-0.5">
-          {files.map((file, idx) => {
-            const index = startIndex + idx;
-            return (
-              <li
-                key={file}
-                tabIndex={0}
-                onClick={(event) => handleItemClick(index, event)}
-                className={getItemClassName(file, index)}
-                style={{ userSelect: "none" }}
-              >
-                {file
-                  .replace(new RegExp(`^${settings.archiveFolderName}/`), "")
-                  .replace(".txt", "")}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
 
   const getItemClassName = (file: string, index: number) => {
     const isSelected = selectedFiles.has(index);
     const isCurrent = file === currentFile;
 
-    return `px-2 py-0.5 rounded-md text-sm text-text-secondary dark:text-dark-text-secondary hover:text-text-highlight dark:hover:text-dark-text-highlight hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-      isSelected || isCurrent
-        ? "bg-secondary-hover dark:bg-dark-secondary-hover text-text-highlight dark:text-dark-text-highlight"
-        : ""
+    return `p-5 border border-black rounded-2xl cursor-default ${
+      isSelected
+        ? "bg-primary-hover dark:bg-dark-primary-hover"
+        : isCurrent
+        ? "bg-primary dark:bg-dark-primary"
+        : "hover:bg-secondary-hover dark:hover:bg-dark-secondary-hover"
     }`;
   };
 
   return (
     <div className="p-4">
-      {renderFileSection(activeFiles, null, 0)}
-      {archivedFiles.length > 0 &&
-        renderFileSection(archivedFiles, "Archive", activeFiles.length, true)}
+      <ul className="space-y-5">
+        {files.map((file, index) => (
+          <li
+            key={file}
+            tabIndex={0}
+            onClick={(event) => handleItemClick(index, event)}
+            className={getItemClassName(file, index)}
+            style={{ userSelect: "none" }}
+          >
+            {file
+              .replace(new RegExp(`^${settings.archiveFolderName}/`), "")
+              .replace(".txt", "")}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
