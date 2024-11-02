@@ -37,29 +37,22 @@ export function useFiles() {
   };
 
   // Handle new file creation
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuNewFile(async () => {
-      if (!currentFolder) return;
-      const filename = await window.electronAPI.createNewFile(currentFolder);
-      if (filename) {
-        openFile(currentFolder, filename);
-        refreshFileLists();
-      }
-    });
-    return cleanup;
+  const handleNewFile = useCallback(async () => {
+    if (!currentFolder) return;
+    const filename = await window.electronAPI.createNewFile(currentFolder);
+    if (filename) {
+      openFile(currentFolder, filename);
+      refreshFileLists();
+    }
   }, [currentFolder]);
 
   // Handle folder opening
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuOpenFolder(async () => {
-      const path = await window.electronAPI.openFolder();
-      if (path) {
-        setCurrentFolder(path);
-        closeFile();
-      }
-    });
-
-    return cleanup;
+  const handleOpenFolder = useCallback(async () => {
+    const path = await window.electronAPI.openFolder();
+    if (path) {
+      setCurrentFolder(path);
+      closeFile();
+    }
   }, []);
 
   const openFile = async (folderPath: string, filename: string) => {
@@ -74,19 +67,16 @@ export function useFiles() {
   };
 
   // Handle file deletion
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuDeleteFile(async () => {
-      if (!currentFolder || !currentFile) return;
-      const success = await window.electronAPI.deleteFile(
-        currentFolder,
-        currentFile
-      );
-      if (success) {
-        closeFile();
-        refreshFileLists();
-      }
-    });
-    return cleanup;
+  const handleDeleteFile = useCallback(async () => {
+    if (!currentFolder || !currentFile) return;
+    const success = await window.electronAPI.deleteFile(
+      currentFolder,
+      currentFile
+    );
+    if (success) {
+      closeFile();
+      refreshFileLists();
+    }
   }, [currentFolder, currentFile]);
 
   const getNextFile = (files: string[], currentFile: string) => {
@@ -95,73 +85,46 @@ export function useFiles() {
   };
 
   // Handle file archiving
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuArchiveFile(async () => {
-      if (!currentFolder || !currentFile) return;
-      const nextFile = settings.autoAdvance
-        ? getNextFile(activeFiles, currentFile)
-        : null;
-      const success = await window.electronAPI.archiveFile(
-        currentFolder,
-        currentFile,
-        false
-      );
-      if (success) {
-        if (nextFile) {
-          openFile(currentFolder, nextFile);
-        } else {
-          closeFile();
-        }
-        refreshFileLists();
+  const handleArchiveFile = useCallback(async () => {
+    if (!currentFolder || !currentFile) return;
+    const nextFile = settings.autoAdvance
+      ? getNextFile(activeFiles, currentFile)
+      : null;
+    const success = await window.electronAPI.archiveFile(
+      currentFolder,
+      currentFile,
+      false
+    );
+    if (success) {
+      if (nextFile) {
+        openFile(currentFolder, nextFile);
+      } else {
+        closeFile();
       }
-    });
-    return cleanup;
+      refreshFileLists();
+    }
   }, [currentFolder, currentFile, activeFiles, settings.autoAdvance]);
 
   // Handle file restoration
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuRestoreFile(async () => {
-      if (!currentFolder || !currentFile) return;
-      const filename = currentFile.replace(
-        new RegExp(`^${settings.archiveFolderName}/`),
-        ""
-      );
-      const success = await window.electronAPI.archiveFile(
-        currentFolder,
-        filename,
-        true
-      );
-      if (success) {
-        refreshFileLists();
-      }
-    });
-    return cleanup;
-  }, [currentFolder, currentFile]);
-
-  // Handle menu updates
-  useEffect(() => {
-    if (currentFile) {
-      const isArchived = currentFile.startsWith(
-        `${settings.archiveFolderName}/`
-      );
-      window.electronAPI.updateMenuEnabled("Archive File", !isArchived);
-      window.electronAPI.updateMenuEnabled("Restore File", isArchived);
-      window.electronAPI.updateMenuEnabled("Close File", true);
-      window.electronAPI.updateMenuEnabled("Delete File", true);
-    } else {
-      window.electronAPI.updateMenuEnabled("Archive File", false);
-      window.electronAPI.updateMenuEnabled("Restore File", false);
-      window.electronAPI.updateMenuEnabled("Close File", false);
-      window.electronAPI.updateMenuEnabled("Delete File", false);
+  const handleRestoreFile = useCallback(async () => {
+    if (!currentFolder || !currentFile) return;
+    const filename = currentFile.replace(
+      new RegExp(`^${settings.archiveFolderName}/`),
+      ""
+    );
+    const success = await window.electronAPI.archiveFile(
+      currentFolder,
+      filename,
+      true
+    );
+    if (success) {
+      refreshFileLists();
     }
-  }, [currentFile]);
+  }, [currentFolder, currentFile, settings.archiveFolderName]);
 
   // Handle file closing
-  useEffect(() => {
-    const cleanup = window.electronAPI.onMenuCloseFile(() => {
-      closeFile();
-    });
-    return cleanup;
+  const handleCloseFile = useCallback(() => {
+    closeFile();
   }, []);
 
   // Navigation functions
@@ -211,20 +174,36 @@ export function useFiles() {
     settings.archiveFolderName,
   ]);
 
-  // Add navigation menu handlers
+  // Register menu event handlers
   useEffect(() => {
-    const cleanupFirst = window.electronAPI.onMenuFirstItem(navigateToFirst);
-    const cleanupOlder = window.electronAPI.onMenuPreviousItem(navigateToOlder);
-    const cleanupNewer = window.electronAPI.onMenuNextItem(navigateToNewer);
-    const cleanupLast = window.electronAPI.onMenuLastItem(navigateToLast);
+    const cleanups = [
+      window.electronAPI.onMenuNewFile(handleNewFile),
+      window.electronAPI.onMenuOpenFolder(handleOpenFolder),
+      window.electronAPI.onMenuDeleteFile(handleDeleteFile),
+      window.electronAPI.onMenuArchiveFile(handleArchiveFile),
+      window.electronAPI.onMenuRestoreFile(handleRestoreFile),
+      window.electronAPI.onMenuCloseFile(handleCloseFile),
+      window.electronAPI.onMenuFirstItem(navigateToFirst),
+      window.electronAPI.onMenuPreviousItem(navigateToOlder),
+      window.electronAPI.onMenuNextItem(navigateToNewer),
+      window.electronAPI.onMenuLastItem(navigateToLast),
+    ];
 
     return () => {
-      cleanupFirst();
-      cleanupOlder();
-      cleanupNewer();
-      cleanupLast();
+      cleanups.forEach((cleanup) => cleanup());
     };
-  }, [navigateToFirst, navigateToOlder, navigateToNewer, navigateToLast]);
+  }, [
+    handleNewFile,
+    handleOpenFolder,
+    handleDeleteFile,
+    handleArchiveFile,
+    handleRestoreFile,
+    handleCloseFile,
+    navigateToFirst,
+    navigateToOlder,
+    navigateToNewer,
+    navigateToLast,
+  ]);
 
   // Update menu enabled states
   useEffect(() => {
@@ -243,6 +222,16 @@ export function useFiles() {
       "Older Bubble",
       hasCurrentFile && currentIndex < files.length - 1
     );
+    window.electronAPI.updateMenuEnabled(
+      "Archive File",
+      hasCurrentFile && !isArchived
+    );
+    window.electronAPI.updateMenuEnabled(
+      "Restore File",
+      hasCurrentFile && !!isArchived
+    );
+    window.electronAPI.updateMenuEnabled("Close File", hasCurrentFile);
+    window.electronAPI.updateMenuEnabled("Delete File", hasCurrentFile);
   }, [currentFile, activeFiles, archivedFiles, settings.archiveFolderName]);
 
   return {
