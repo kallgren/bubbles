@@ -36,25 +36,6 @@ export function useFiles() {
     setArchivedFiles(archivedFiles);
   };
 
-  // Handle new file creation
-  const handleNewFile = useCallback(async () => {
-    if (!currentFolder) return;
-    const filename = await window.electronAPI.createNewFile(currentFolder);
-    if (filename) {
-      openFile(currentFolder, filename);
-      refreshFileLists();
-    }
-  }, [currentFolder]);
-
-  // Handle folder opening
-  const handleOpenFolder = useCallback(async () => {
-    const path = await window.electronAPI.openFolder();
-    if (path) {
-      setCurrentFolder(path);
-      closeFile();
-    }
-  }, []);
-
   const openFile = async (folderPath: string, filename: string) => {
     const content = await window.electronAPI.readFile(folderPath, filename);
     setCurrentFile(filename);
@@ -65,6 +46,25 @@ export function useFiles() {
     setCurrentFile(null);
     setFileContent(null);
   };
+
+  // Handle folder opening
+  const handleOpenFolder = useCallback(async () => {
+    const path = await window.electronAPI.openFolder();
+    if (path) {
+      setCurrentFolder(path);
+      closeFile();
+    }
+  }, []);
+
+  // Handle new file creation
+  const handleNewFile = useCallback(async () => {
+    if (!currentFolder) return;
+    const filename = await window.electronAPI.createNewFile(currentFolder);
+    if (filename) {
+      openFile(currentFolder, filename);
+      refreshFileLists();
+    }
+  }, [currentFolder]);
 
   // Handle file deletion
   const handleDeleteFile = useCallback(async () => {
@@ -128,17 +128,17 @@ export function useFiles() {
   }, []);
 
   // Navigation functions
-  const navigateToFirst = useCallback(() => {
+  const handleNavigateToFirst = useCallback(() => {
     if (!currentFolder || !activeFiles.length) return;
     openFile(currentFolder, activeFiles[0]);
   }, [currentFolder, activeFiles]);
 
-  const navigateToLast = useCallback(() => {
+  const handleNavigateToLast = useCallback(() => {
     if (!currentFolder || !activeFiles.length) return;
     openFile(currentFolder, activeFiles[activeFiles.length - 1]);
   }, [currentFolder, activeFiles]);
 
-  const navigateToOlder = useCallback(() => {
+  const handleNavigateToOlder = useCallback(() => {
     if (!currentFolder || !currentFile) return;
 
     const isArchived = currentFile.startsWith(`${settings.archiveFolderName}/`);
@@ -156,7 +156,7 @@ export function useFiles() {
     settings.archiveFolderName,
   ]);
 
-  const navigateToNewer = useCallback(() => {
+  const handleNavigateToNewer = useCallback(() => {
     if (!currentFolder || !currentFile) return;
 
     const isArchived = currentFile.startsWith(`${settings.archiveFolderName}/`);
@@ -176,14 +176,14 @@ export function useFiles() {
 
   // Register menu event handlers
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuNewFile(handleNewFile);
-    return cleanup;
-  }, [handleNewFile]);
-
-  useEffect(() => {
     const cleanup = window.electronAPI.onMenuOpenFolder(handleOpenFolder);
     return cleanup;
   }, [handleOpenFolder]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuNewFile(handleNewFile);
+    return cleanup;
+  }, [handleNewFile]);
 
   useEffect(() => {
     const cleanup = window.electronAPI.onMenuDeleteFile(handleDeleteFile);
@@ -206,24 +206,26 @@ export function useFiles() {
   }, [handleCloseFile]);
 
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuFirstItem(navigateToFirst);
+    const cleanup = window.electronAPI.onMenuFirstItem(handleNavigateToFirst);
     return cleanup;
-  }, [navigateToFirst]);
+  }, [handleNavigateToFirst]);
 
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuPreviousItem(navigateToOlder);
+    const cleanup = window.electronAPI.onMenuLastItem(handleNavigateToLast);
     return cleanup;
-  }, [navigateToOlder]);
+  }, [handleNavigateToLast]);
 
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuNextItem(navigateToNewer);
+    const cleanup = window.electronAPI.onMenuPreviousItem(
+      handleNavigateToOlder
+    );
     return cleanup;
-  }, [navigateToNewer]);
+  }, [handleNavigateToOlder]);
 
   useEffect(() => {
-    const cleanup = window.electronAPI.onMenuLastItem(navigateToLast);
+    const cleanup = window.electronAPI.onMenuNextItem(handleNavigateToNewer);
     return cleanup;
-  }, [navigateToLast]);
+  }, [handleNavigateToNewer]);
 
   // Update menu enabled states
   useEffect(() => {
