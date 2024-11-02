@@ -176,34 +176,54 @@ export function useFiles() {
 
   // Register menu event handlers
   useEffect(() => {
-    const cleanups = [
-      window.electronAPI.onMenuNewFile(handleNewFile),
-      window.electronAPI.onMenuOpenFolder(handleOpenFolder),
-      window.electronAPI.onMenuDeleteFile(handleDeleteFile),
-      window.electronAPI.onMenuArchiveFile(handleArchiveFile),
-      window.electronAPI.onMenuRestoreFile(handleRestoreFile),
-      window.electronAPI.onMenuCloseFile(handleCloseFile),
-      window.electronAPI.onMenuFirstItem(navigateToFirst),
-      window.electronAPI.onMenuPreviousItem(navigateToOlder),
-      window.electronAPI.onMenuNextItem(navigateToNewer),
-      window.electronAPI.onMenuLastItem(navigateToLast),
-    ];
+    const cleanup = window.electronAPI.onMenuNewFile(handleNewFile);
+    return cleanup;
+  }, [handleNewFile]);
 
-    return () => {
-      cleanups.forEach((cleanup) => cleanup());
-    };
-  }, [
-    handleNewFile,
-    handleOpenFolder,
-    handleDeleteFile,
-    handleArchiveFile,
-    handleRestoreFile,
-    handleCloseFile,
-    navigateToFirst,
-    navigateToOlder,
-    navigateToNewer,
-    navigateToLast,
-  ]);
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuOpenFolder(handleOpenFolder);
+    return cleanup;
+  }, [handleOpenFolder]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuDeleteFile(handleDeleteFile);
+    return cleanup;
+  }, [handleDeleteFile]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuArchiveFile(handleArchiveFile);
+    return cleanup;
+  }, [handleArchiveFile]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuRestoreFile(handleRestoreFile);
+    return cleanup;
+  }, [handleRestoreFile]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuCloseFile(handleCloseFile);
+    return cleanup;
+  }, [handleCloseFile]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuFirstItem(navigateToFirst);
+    return cleanup;
+  }, [navigateToFirst]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuPreviousItem(navigateToOlder);
+    return cleanup;
+  }, [navigateToOlder]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuNextItem(navigateToNewer);
+    return cleanup;
+  }, [navigateToNewer]);
+
+  useEffect(() => {
+    const cleanup = window.electronAPI.onMenuLastItem(navigateToLast);
+    return cleanup;
+  }, [navigateToLast]);
 
   // Update menu enabled states
   useEffect(() => {
